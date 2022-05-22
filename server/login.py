@@ -1,25 +1,22 @@
 from tkinter import *
 from users import Users
+
 '''
 responsible for the first screen - the login for each user
 '''
-class login(object):
+class Login(object):
     def __init__(self, username, password):
         self.username = username
         self.password = password
-        self.data = Users
 
-    def hush_pass(self):
-        # hush password
-        pass
 
     def check_in_sql(self):
         # if user exists in database and password and username match
         # then return true else return false
 
         try:
-            # check if username and password in data base
-            Users.check_user_and_pass(self.username, self.password)
+            # check if username and password in database
+            answer = Users.check_user_and_pass(self.username, self.password)
             print(f"{self.username} logged in successfully")
             return True
 
@@ -28,18 +25,14 @@ class login(object):
             return False
 
 
-def send_user(userEntry, passEntry):
+def send_user(username, password):
     # check if password and username are valid
-    global logged
-    if not logged:
-        # check if user is exist
-        print(f"sending {userEntry} for a login attempt")
-        user = login(userEntry, passEntry)
-        logged = user.check_in_sql()
-    else:
-        print("user already logged")
+    # check if user is exist and return
+    print(f"sending {username} for a login attempt")
+    username, password = "lihi", "111"
+    user = Login(username, password)
+    print(user)
+    username, password = "lee", "111"
+    user = Login(username, password)
+    print(user)
 
-
-if __name__ == '__main__':
-
-    tk.mainloop()

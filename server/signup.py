@@ -1,48 +1,33 @@
 from users import Users
 import tkinter as tk
+"""
+handles signup for each user: creates new user in database
+"""
+
 
 class signup(object):
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-        print(f"user {self.username} with password {self.password}")
+    def __init__(self, creds):
+        self.username, self.password, self.email = creds
+        print(f"user {self.username} with {self.email} with password {self.password}")
+        self.user = Users()
 
     def create_a_user(self):
-        # create a user from the given username and password
-        print(self.username, self.password)
-
-        table.insert_user(self.username, self.password)
-        print(f"created {self.username} successfully")
-
-
-def graphics():
-    # responsible for the graphics of the game
-    logged = False  # a global variable - if user is logged in or not
-    win = tk.Tk()
-    win.geometry('400x150')
-    win.title("Login - SLT")
-    # username
-    usernameLabel = win.Label(win, text="Username").grid(row=0, column=0)
-    username = win.StringVar()
-    usernameEntry = win.Entry(win, textvariable=username).grid(row=0, column=1)
-    # password
-    passwordLabel = win.Label(win, text="Password").grid(row=1, column=0)
-    password = win.StringVar()
-    passwordEntry = win.Entry(win, textvariable=password, show='*').grid(row=1, column=1)
-    # login button
-    loginButton = win.Button(win, text="Login", command=lambda: send_user(username.get(), password.get())).grid(row=4,
-                                                                                                           column=0)
-    #
-    tk.mainloop()
+        # creates a user from the given username and password
+        print(self.username, self.password, self.email)
+        success = self.user.insert_user(self.username, self.password, self.email)
+        if success == 1:
+            print(f"created {self.username} successfully")
+        elif success == -1:
+            print(f"can't create username because its already exists")
 
 
-def send_user(user,password):
-    # send user entered to database
-    new_user = signup(user,password)
+def send_user(user, password, email):
+    # send the data that the user entered to database
+    print(user, password,email, "first")
+    new_user = signup((user, password, email))
     new_user.create_a_user()
 
 
-
 if __name__ == '__main__':
-    table = Users()
-    graphics()
+    (user, password, email) = ("lihi", "111", "hero@gmail.com")
+    send_user(user,password, email)

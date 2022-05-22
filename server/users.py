@@ -4,11 +4,12 @@ import sqlite3
 manages the users database for login
 '''
 class Users(object):
-    def __init__(self, tablename="users", userId="userId", password="password", username="username"):
+    def __init__(self, tablename="users", userId="userId", password="password", username="username", email="email"):
         self.__tablename = tablename
         self.__userId = userId
         self.__password = password
         self.__username = username
+        self.__email = email
 
         self.file_name = 'users_for_slt.db'
         conn = sqlite3.connect('users_for_slt.db')
@@ -17,7 +18,8 @@ class Users(object):
         query_str = "CREATE TABLE IF NOT EXISTS " + tablename + "(" + self.__userId + " " + \
                     " INTEGER PRIMARY KEY AUTOINCREMENT ,"
         query_str += " " + self.__password + " TEXT    NOT NULL ,"
-        query_str += " " + self.__username + " TEXT    NOT NULL );"
+        query_str += " " + self.__username + " TEXT    NOT NULL ,"
+        query_str += " " + self.__email + " TEXT    NOT NULL );"
 
         # conn.execute("Create table users")
         conn.execute(query_str)
@@ -31,19 +33,28 @@ class Users(object):
     def get_table_name(self):
         return self.__tablename
 
-    def insert_user(self, username, password):
-        # insert new user into the database
+    def insert_user(self, username, password, email):
+        """
+        insert new user into the database if not already exists
+        :param username:
+        :param password:
+        :param email:
+        """
         print(username)
         print(password)
-        conn = sqlite3.connect('users_for_slt.db')  # before self.file_name
-        insert_query = "INSERT INTO " + self.__tablename +\
-                       " (" + self.__username + "," + self.__password + ") VALUES " \
-                       "(" + "'" + username + "'" + "," + "'" + password + "'" + ");"
-        print(insert_query)
-        conn.execute(insert_query)
-        conn.commit()
-        conn.close()
-        print("Record created successfully")
+        if not self.is_exist(username, email):  # check if user already exist
+            conn = sqlite3.connect('users_for_slt.db')  # before self.file_name
+            insert_query = "INSERT INTO " + self.__tablename +\
+                           " (" + self.__username + "," + self.__password + "," + self.__email + ") VALUES " \
+                           "(" + "'" + username + "'" + "," + "'" + password + "'" + "," + "'" + email + "'" + ");"
+            print(insert_query)
+            conn.execute(insert_query)
+            conn.commit()
+            conn.close()
+            print("Record created successfully")
+            return 1
+        else:
+            return -1
 
 
     def select_user_by_id(self, userId):
@@ -88,12 +99,42 @@ class Users(object):
         str1 = ("SELECT rowid FROM components WHERE name = ?", username)
 
     def check_user_and_pass(self, username, password):
+        # if username and password are correct then send true, else send false
         conn = sqlite3.connect(self.file_name)
         print("Opened database successfully")
-        str1 = f"SELECT * from {self.__tablename} WHERE username = {username} AND password = {password}')"
+        try:
+            str1 = f"SELECT * from {self.__tablename} WHERE username = {username} AND password = {password}')"
+            print(str1)
+            conn.execute(str1)
+            conn.commit()
+            conn.close()
+        except:
+            conn.close()
+            return False
 
-        conn.execute(str1)
+    def is_exist(self, username, email):
+        """
+        Checks if username or email already exist in database
+        :param username:
+        :param email:
+        :return:  true if exist false if not
+        """
+        conn = sqlite3.connect(self.file_name)
+        print("Opened database successfully")
+        str1 = f"select * from users;"
+
+        print(str1)
+        cursor = conn.execute(str1)
+        for row in cursor:
+            if row[2] == username:
+                return True
+        for row in cursor:
+            if row[3] == email:
+                return True
+
         conn.commit()
         conn.close()
+        return False
+
 
 Users()
