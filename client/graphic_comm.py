@@ -3,17 +3,15 @@ this handles the graphics functions
 '''
 import sys
 import threading
-
+import time
 import PyQt5
 from PyQt5.QtWidgets import QMainWindow,QApplication
 import asyncio
-from client import window2
+
+import client.window2
 from graphics import Ui_MainWindow
 from login import Login, Sign
-import waiting
-
-global turn
-turn = False
+#from client import text2speech as t2
 
 class comm(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -22,7 +20,6 @@ class comm(QMainWindow, Ui_MainWindow):
 
         self.validation = False
         self.check_buttons()
-
 
     def check_buttons(self):
         # Check if button has been pressed and execute its function
@@ -43,10 +40,6 @@ class comm(QMainWindow, Ui_MainWindow):
         self.vertify_button.clicked.connect(self.check_vert)
         self.return_cmd.clicked.connect(lambda: self.change_window(self.login_page))
 
-        # ---------in main ______________________ buttons: reset,
-
-
-
     def send_signin(self):
         # send login credentials to check. if valid try then open the slt
         try:
@@ -58,11 +51,9 @@ class comm(QMainWindow, Ui_MainWindow):
             self.validation = self.user.is_valid()  # get true if login attempt succeed
 
             if self.validation:
-                turn = True
+                self.change_window(self.main_app)
                 print("login succeeded")
-
-                print("destroyed", turn)
-                self.destroy()
+                self.chat()
 
             else:
                 # print error msg and go to check buttons again
@@ -103,24 +94,27 @@ class comm(QMainWindow, Ui_MainWindow):
         self.entry.setCurrentWidget(win)
         self.check_buttons()
 
-def check(turn):
-    # get validation
-    while True:
-        if turn:
-            turn = False
-            print("exiting")
-            window2.start()
+    def chat(self):
+        # handles main functions
+        self.send_button.clicked.connect(self.send_msg)  # send msg button
+        self.start_button.clicked.connect(self.start_speech)  # start speech button
 
+
+    def send_msg(self):
+        # send msg to another user
+        pass
+
+    def start_speech(self):
+        #start recording
+        self.text = client.window2.recognize()
+        self.textbox.setText(self.text)
+        self.textbox.show()
+        self.chat()
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     win = comm()
     win.show()
-
-    t = threading.Thread(target=check, args=(turn,))
-    t.start()
-    t.join()
-
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
 

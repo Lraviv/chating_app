@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'project.ui'
+# Form implementation generated from reading ui file 'C:\Users\User\project.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -9,22 +9,12 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QLineEdit
-from window2 import App
-from pics import reference
+import img.image
 
 class Ui_MainWindow(object):
-    #def open_win(self):
-    #    #self.main_app.close()
-    #    self.win = QtWidgets.QMainWindow()
-    #    self.ui = App()
-    #    #self.ui.setupUi(self.win)
-    #    self.win.show()
-
-
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1232, 785)
+        MainWindow.resize(1240, 785)
         self.stack = QtWidgets.QWidget(MainWindow)
         self.stack.setEnabled(True)
         self.stack.setObjectName("stack")
@@ -34,13 +24,14 @@ class Ui_MainWindow(object):
         self.opening = QtWidgets.QWidget()
         self.opening.setObjectName("opening")
         self.open_bg = QtWidgets.QLabel(self.opening)
-        self.open_bg.setGeometry(QtCore.QRect(-10, -70, 1351, 871))
+        self.open_bg.setGeometry(QtCore.QRect(0, -70, 1351, 871))
+        self.open_bg.setOpenExternalLinks(False)
         self.open_bg.setObjectName("open_bg")
         self.open_button = QtWidgets.QPushButton(self.opening)
-        self.open_button.setGeometry(QtCore.QRect(450, 530, 331, 71))
+        self.open_button.setGeometry(QtCore.QRect(350, 530, 451, 101))
         self.open_button.setStyleSheet("QPushButton{\n"
-"    font: 26pt \"Guttman Yad-Brush\";\n"
-"    color: rgb(67, 160, 233);\n"
+"    font: 40pt \"Guttman Yad-Brush\";\n"
+"    color: rgb(0, 85, 255);\n"
 "    background-color: rgba(255,255,255,0);\n"
 "    border: 0px;\n"
 "}\n"
@@ -90,8 +81,8 @@ class Ui_MainWindow(object):
         self.loguser_input.setStyleSheet("QLineEdit { \n"
 "    background-color: rgba(255,255,255,0);\n"
 "    border: 0px;\n"
-
-"}")
+"}\n"
+"")
         self.loguser_input.setText("")
         self.loguser_input.setObjectName("loguser_input")
         self.login_button = QtWidgets.QPushButton(self.login_page)
@@ -113,7 +104,6 @@ class Ui_MainWindow(object):
         self.bg_login.setGeometry(QtCore.QRect(0, 0, 1281, 761))
         self.bg_login.setObjectName("bg_login")
         self.logpass_input = QtWidgets.QLineEdit(self.login_page)
-        self.logpass_input .setEchoMode(QLineEdit.Password)
         self.logpass_input.setGeometry(QtCore.QRect(450, 400, 351, 61))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255, 0))
@@ -152,9 +142,10 @@ class Ui_MainWindow(object):
         self.logpass_input.setStyleSheet("QLineEdit { \n"
 "    background-color: rgba(255,255,255,0);\n"
 "    border: 0px;\n"
-"}\n")
-        self.logpass_input.setInputMethodHints(QtCore.Qt.ImhHiddenText)
+"}")
+        self.logpass_input.setInputMethodHints(QtCore.Qt.ImhHiddenText|QtCore.Qt.ImhNoAutoUppercase|QtCore.Qt.ImhNoPredictiveText|QtCore.Qt.ImhSensitiveData)
         self.logpass_input.setText("")
+        self.logpass_input.setEchoMode(QtWidgets.QLineEdit.Password)
         self.logpass_input.setObjectName("logpass_input")
         self.logsign_button = QtWidgets.QPushButton(self.login_page)
         self.logsign_button.setGeometry(QtCore.QRect(440, 630, 161, 51))
@@ -171,7 +162,7 @@ class Ui_MainWindow(object):
         self.warn_label_log = QtWidgets.QLabel(self.login_page)
         self.warn_label_log.setGeometry(QtCore.QRect(450, 470, 351, 41))
         self.warn_label_log.setStyleSheet("font: 14pt \"MS Shell Dlg 2\";")
-        #self.warn_label_log.setText("")
+        self.warn_label_log.setText("")
         self.warn_label_log.setObjectName("warn_label_log")
         self.logquit_button = QtWidgets.QPushButton(self.login_page)
         self.logquit_button.setGeometry(QtCore.QRect(640, 630, 161, 51))
@@ -263,11 +254,16 @@ class Ui_MainWindow(object):
         self.signuser_input.setStyleSheet("QLineEdit { \n"
 "    background-color: rgba(255,255,255,0);\n"
 "    border: 0px;\n"
-"}\n")
+"}\n"
+"QLineEditor:hover{\n"
+"    border: 2px solid rgb(48,50,62);\n"
+"}\n"
+"QLineEdit:focus{\n"
+"    border: 2px solid rgb(85,179,255);\n"
+"}")
         self.signuser_input.setText("")
         self.signuser_input.setObjectName("signuser_input")
         self.signpass_input = QtWidgets.QLineEdit(self.signup_page)
-        self.signpass_input.setEchoMode(QLineEdit.Password)
         self.signpass_input.setGeometry(QtCore.QRect(460, 400, 341, 51))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255, 0))
@@ -307,6 +303,11 @@ class Ui_MainWindow(object):
 "    background-color: rgba(255,255,255,0);\n"
 "    border: 0px;\n"
 "}\n"
+"QLineEditor:hover{\n"
+"    border: 2px solid rgb(48,50,62);\n"
+"}\n"
+"QLineEdit:focus{\n"
+"    border: 2px solid rgb(85,179,255);\n"
 "}")
         self.signpass_input.setText("")
         self.signpass_input.setObjectName("signpass_input")
@@ -350,7 +351,12 @@ class Ui_MainWindow(object):
 "    background-color: rgba(255,255,255,0);\n"
 "    border: 0px;\n"
 "}\n"
-)
+"QLineEditor:hover{\n"
+"    border: 2px solid rgb(48,50,62);\n"
+"}\n"
+"QLineEdit:focus{\n"
+"    border: 2px solid rgb(85,179,255);\n"
+"}")
         self.signemail_input.setText("")
         self.signemail_input.setObjectName("signemail_input")
         self.sign_label = QtWidgets.QLabel(self.signup_page)
@@ -376,24 +382,24 @@ class Ui_MainWindow(object):
         self.entry.addWidget(self.signup_page)
         self.vertification = QtWidgets.QWidget()
         font = QtGui.QFont()
-        font.setPointSize(48)
+        font.setPointSize(10)
         font.setBold(True)
         font.setWeight(75)
         self.vertification.setFont(font)
         self.vertification.setObjectName("vertification")
         self.bg_vert = QtWidgets.QLabel(self.vertification)
-        self.bg_vert.setGeometry(QtCore.QRect(0, 0, 1231, 761))
+        self.bg_vert.setGeometry(QtCore.QRect(0, 0, 1241, 761))
         self.bg_vert.setObjectName("bg_vert")
-        self.warn_label_vert = QtWidgets.QLabel(self.vertification)
-        self.warn_label_vert.setGeometry(QtCore.QRect(450, 640, 361, 51))
-        self.warn_label_vert.setText("")
-        self.warn_label_vert.setObjectName("warn_label_vert")
+        #self.warn_label_vert = QtWidgets.QLabel(self.vertification)
+        #self.warn_label_vert.setGeometry(QtCore.QRect(450, 640, 361, 51))
+        #self.warn_label_vert.setText("")
+        #self.warn_label_vert.setObjectName("warn_label_vert")
         self.send_cmd = QtWidgets.QCommandLinkButton(self.vertification)
         self.send_cmd.setGeometry(QtCore.QRect(450, 630, 341, 48))
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setBold(False)
-        font.setWeight(20)
+        font.setWeight(50)
         self.send_cmd.setFont(font)
         self.send_cmd.setObjectName("send_cmd")
         self.vertify_button = QtWidgets.QPushButton(self.vertification)
@@ -451,6 +457,13 @@ class Ui_MainWindow(object):
 "    font: 48pt \"Guttman Haim\";\n"
 "    background-color: rgba(255,255,255);\n"
 "    border-color: rgb(0, 0, 0);\n"
+"\n"
+"}\n"
+"QLineEditor:hover{\n"
+"    border: 2px solid rgb(48,50,62);\n"
+"}\n"
+"QLineEdit:focus{\n"
+"    border: 2px solid rgb(85,179,255);\n"
 "}")
         self.vertcode_input.setText("")
         self.vertcode_input.setMaxLength(4)
@@ -469,22 +482,11 @@ class Ui_MainWindow(object):
         self.main_app.setObjectName("main_app")
         self.bg_app = QtWidgets.QLabel(self.main_app)
         self.bg_app.setGeometry(QtCore.QRect(0, -40, 1251, 821))
+        self.bg_app.setPixmap(QtGui.QPixmap(":/pictures/5.png"))
         self.bg_app.setObjectName("bg_app")
-        self.text_app = QtWidgets.QLabel(self.main_app)
-        self.text_app.setGeometry(QtCore.QRect(280, 580, 711, 41))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.text_app.setFont(font)
-        self.text_app.setText("")
-        self.text_app.setObjectName("text_app")
-        self.video_widget = QtWidgets.QLabel(self.main_app)
-        self.video_widget.setGeometry(QtCore.QRect(0, 0, 1231, 541))
-        self.video_widget.setObjectName("video_widget")
-
-
-        self.reset_button = QtWidgets.QPushButton(self.main_app)
-        self.reset_button.setGeometry(QtCore.QRect(1090, 560, 141, 41))
-        self.reset_button.setStyleSheet("QPushButton{\n"
+        self.start_button = QtWidgets.QPushButton(self.main_app)
+        self.start_button.setGeometry(QtCore.QRect(670, 620, 61, 91))
+        self.start_button.setStyleSheet("QPushButton{\n"
 "    font: 20pt \"MS Shell Dlg 2\";\n"
 "    color: rgb(67, 160, 233);\n"
 "    background-color: rgba(255,255,255,0);\n"
@@ -493,11 +495,11 @@ class Ui_MainWindow(object):
 "QPushButton:hover{\n"
 "    color: rgb(85, 170, 255);\n"
 "}")
-        self.reset_button.setText("")
-        self.reset_button.setObjectName("reset_button")
-        self.copy_button = QtWidgets.QPushButton(self.main_app)
-        self.copy_button.setGeometry(QtCore.QRect(1090, 630, 141, 51))
-        self.copy_button.setStyleSheet("QPushButton{\n"
+        self.start_button.setText("")
+        self.start_button.setObjectName("start_button")
+        self.send_button = QtWidgets.QPushButton(self.main_app)
+        self.send_button.setGeometry(QtCore.QRect(500, 680, 121, 41))
+        self.send_button.setStyleSheet("QPushButton{\n"
 "    font: 20pt \"MS Shell Dlg 2\";\n"
 "    color: rgb(67, 160, 233);\n"
 "    background-color: rgba(255,255,255,0);\n"
@@ -506,25 +508,30 @@ class Ui_MainWindow(object):
 "QPushButton:hover{\n"
 "    color: rgb(85, 170, 255);\n"
 "}")
-        self.copy_button.setText("")
-        self.copy_button.setObjectName("copy_button")
-        self.quit_button = QtWidgets.QPushButton(self.main_app)
-        self.quit_button.setGeometry(QtCore.QRect(1090, 710, 141, 41))
-        self.quit_button.setStyleSheet("QPushButton{\n"
-"    font: 20pt \"MS Shell Dlg 2\";\n"
-"    color: rgb(67, 160, 233);\n"
-"    background-color: rgba(255,255,255,0);\n"
-"    border: 0px;\n"
-"}\n"
-"QPushButton:hover{\n"
-"    color: rgb(85, 170, 255);\n"
-"}")
-        self.quit_button.setText("")
-        self.quit_button.setObjectName("quit_button")
+        self.send_button.setText("")
+        self.send_button.setObjectName("send_button")
+        self.textbox = QtWidgets.QLineEdit(self.main_app)
+        self.textbox.setGeometry(QtCore.QRect(50, 610, 441, 111))
+        self.textbox.setStyleSheet("background-color: rgba(255,255,255,0);\n"
+"border-color: rgb(0, 0, 0);\n"
+"font: 7pt \"MS Shell Dlg 2\";\n"
+"border: 1px solid black;")
+        self.textbox.setObjectName("textbox")
+        self.serch_user_line = QtWidgets.QLineEdit(self.main_app)
+        self.serch_user_line.setGeometry(QtCore.QRect(970, 110, 171, 41))
+        self.serch_user_line.setObjectName("serch_user_line")
+        self.search_user_button = QtWidgets.QPushButton(self.main_app)
+        self.search_user_button.setGeometry(QtCore.QRect(1150, 110, 41, 41))
+        self.search_user_button.setObjectName("search_user_button")
+        self.name_label = QtWidgets.QLabel(self.main_app)
+        self.name_label.setGeometry(QtCore.QRect(40, 20, 301, 31))
+        self.name_label.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";")
+        self.name_label.setText("")
+        self.name_label.setObjectName("name_label")
         self.entry.addWidget(self.main_app)
         MainWindow.setCentralWidget(self.stack)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1232, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1240, 26))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
@@ -534,16 +541,16 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.open_bg.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/pictures/4.png\"/></p></body></html>"))
+        self.open_bg.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/images/4.png\"/></p></body></html>"))
         self.open_button.setText(_translate("MainWindow", " Continue "))
         self.loguser_input.setPlaceholderText(_translate("MainWindow", "   Username"))
         self.login_button.setText(_translate("MainWindow", "Login"))
         self.forgot_password_cmd.setText(_translate("MainWindow", "Forgot my password"))
-        self.bg_login.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/pictures/2.png\"/></p></body></html>"))
+        self.bg_login.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/images/2.png\"/></p></body></html>"))
         self.logpass_input.setPlaceholderText(_translate("MainWindow", "   Password"))
         self.logsign_button.setText(_translate("MainWindow", "Sign Up"))
         self.logquit_button.setText(_translate("MainWindow", "Quit"))
-        self.bg_pic.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/pictures/1.png\"/></p></body></html>"))
+        self.bg_pic.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/images/1.png\"/></p></body></html>"))
         self.signlogin_button.setText(_translate("MainWindow", "Login"))
         self.signup_button.setText(_translate("MainWindow", "Sign Up"))
         self.signuser_input.setPlaceholderText(_translate("MainWindow", "   Username"))
@@ -551,8 +558,10 @@ class Ui_MainWindow(object):
         self.signemail_input.setPlaceholderText(_translate("MainWindow", "   Email"))
         self.sign_label.setText(_translate("MainWindow", "* Password must contain 8 characters"))
         self.logsign_button_2.setText(_translate("MainWindow", "Quit"))
-        self.bg_vert.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/pictures/3.png\"/></p></body></html>"))
-        self.send_cmd.setText(_translate("MainWindow", "send again..."))
+        self.bg_vert.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/images/3.png\"/></p></body></html>"))
+        self.send_cmd.setText(_translate("MainWindow", "send vertification code again..."))
         self.vertify_button.setText(_translate("MainWindow", "Verify"))
-        self.return_cmd.setText(_translate("MainWindow", "return back"))
-        self.bg_app.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/pictures/5.png\"/></p></body></html>"))
+        self.return_cmd.setText(_translate("MainWindow", "return back to sign up"))
+        self.bg_app.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/images/5.png\"/></p></body></html>"))
+        self.search_user_button.setText(_translate("MainWindow", "Go"))
+#import img_rc

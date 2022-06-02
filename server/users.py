@@ -11,8 +11,8 @@ class Users(object):
         self.__username = username
         self.__email = email
 
-        self.file_name = 'users_for_slt.db'
-        conn = sqlite3.connect('users_for_slt.db')
+        self.file_name = 'users_db.db'
+        conn = sqlite3.connect('users_db.db')
         print("Opened database successfully")
 
         query_str = "CREATE TABLE IF NOT EXISTS " + tablename + "(" + self.__userId + " " + \
@@ -43,7 +43,7 @@ class Users(object):
         print(username)
         print(password)
         if not self.is_exist(username, email):  # check if user already exist
-            conn = sqlite3.connect('users_for_slt.db')  # before self.file_name
+            conn = sqlite3.connect('users_db.db')  # before self.file_name
             insert_query = "INSERT INTO " + self.__tablename +\
                            " (" + self.__username + "," + self.__password + "," + self.__email + ") VALUES " \
                            "(" + "'" + username + "'" + "," + "'" + password + "'" + "," + "'" + email + "'" + ");"
