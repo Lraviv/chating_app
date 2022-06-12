@@ -4,13 +4,14 @@ for each user and sends the encrypted data to the server
 '''
 #from client import Client
 
-
 class Login(object):
-    def __init__(self, creds):
+    def __init__(self,client, creds):
         self.creds = creds
         (self.username, self.password) = self.creds
         print(self.creds)
         self.valid = True
+        self.client = client
+        print("in login")
         #TODO here send the creds to the client
 
     def is_valid(self):
@@ -22,6 +23,7 @@ class Login(object):
 
         # return true if creds match
         return self.valid
+
 
 
 class Sign(object):

@@ -1,0 +1,7 @@
+PyQt5
+gtts
+SpeechRecognition
+playsound==1.2.2
+datetime
+pipwin
+PyAudio

@@ -18,6 +18,13 @@ class Client(object):
         data = json.loads(self.msg)
         sock.sendall(str.encode(data))
 
+    def identify_func(self):
+        # handle function identification
+        num = 0
+        # get from protocol number of function to do
+        if num ==1:
+            pass
+        pass
 
 # Get server ip and port
 net = address()

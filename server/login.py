@@ -25,14 +25,3 @@ class Login(object):
             return False
 
 
-def send_user(username, password):
-    # check if password and username are valid
-    # check if user is exist and return
-    print(f"sending {username} for a login attempt")
-    username, password = "lihi", "111"
-    user = Login(username, password)
-    print(user)
-    username, password = "lee", "111"
-    user = Login(username, password)
-    print(user)
-

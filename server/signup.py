@@ -1,11 +1,11 @@
-from users import Users
+from server.users import Users
 import tkinter as tk
 """
 handles signup for each user: creates new user in database
 """
 
 
-class signup(object):
+class sign(object):
     def __init__(self, creds):
         self.username, self.password, self.email = creds
         print(f"user {self.username} with {self.email} with password {self.password}")

@@ -4,11 +4,13 @@ import speech_recognition as sr
 from gtts import gTTS
 from datetime import datetime
 import playsound
+#import pyaudio
+
 
 
 def recognize():
     #recognize what user say
-    speak("hello say something please")
+    speak("say something please")
     # initiate recording
     r = sr.Recognizer()
 
@@ -37,4 +39,4 @@ def speak(audio):
     print(f"system: {audio}")  # print what app said
     os.remove(audio_file)  # remove audio file
 
-# recognize()
+print(recognize())
