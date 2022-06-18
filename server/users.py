@@ -34,12 +34,7 @@ class Users(object):
         return self.__tablename
 
     def insert_user(self, username, password, email):
-        """
-        insert new user into the database if not already exists
-        :param username:
-        :param password:
-        :param email:
-        """
+        # insert new user into the database if not already exists
         print(username)
         print(password)
         if not self.is_exist(username, email):  # check if user already exist
@@ -99,30 +94,29 @@ class Users(object):
         str1 = ("SELECT rowid FROM components WHERE name = ?", username)
 
     def check_user_and_pass(self, username, password):
-        # if username and password are correct then send true, else send false
         conn = sqlite3.connect(self.file_name)
         print("Opened database successfully")
-        try:
-            str1 = f"SELECT * from {self.__tablename} WHERE username = {username} AND password = {password}')"
-            print(str1)
-            conn.execute(str1)
-            conn.commit()
-            conn.close()
-        except:
-            conn.close()
-            return False
+        str1 = "select * from users;"
+
+        print(str1)
+        cursor = conn.execute(str1)
+        for row in cursor:
+            if row[2] == username:
+                if row[1] == password:
+                    conn.close()
+                    cursor.close()
+                    return True
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return False
+
 
     def is_exist(self, username, email):
-        """
-        Checks if username or email already exist in database
-        :param username:
-        :param email:
-        :return:  true if exist false if not
-        """
-        conn = sqlite3.connect(self.file_name)
+        #Checks if username or email already exist in database
+        conn = sqlite3.connect('users_db.db')
         print("Opened database successfully")
         str1 = f"select * from users;"
-
         print(str1)
         cursor = conn.execute(str1)
         for row in cursor:

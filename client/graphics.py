@@ -626,7 +626,7 @@ class Ui_MainWindow(object):
         self.my_msg_label.setStyleSheet("background-color: rgb(85, 170, 255);\n"
 "border-radius: 15px;\n"
 "font: 9pt \"Arial\";")
-        self.my_msg_label.setText("ghgf")
+        self.my_msg_label.setText("")
         self.my_msg_label.setObjectName("my_msg_label")
         self.others_msg_label = QtWidgets.QLabel(self.main_app)
         self.others_msg_label.setGeometry(QtCore.QRect(70, 390, 421, 91))
