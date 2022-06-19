@@ -176,6 +176,7 @@ class connect():
         add = address()
         self.host = add.get_server_ip()
         self.port = add.get_port()
+        print(f'connecting to {self.host} with port {self.port}')
 
     def send_data(self, id, data):
         # sending msg in format
@@ -210,11 +211,11 @@ class connect():
         new_data = (id + "|" + str(size) + "|" + str(data))
         return new_data
 
-    def decrypt(self, data):
-        # first encrypt msg then commit action
-        new_data = data.split("|")
-        id, data = new_data[0], new_data[2]
-        #self.commit_action(id,data)
+    #def decrypt(self, data):
+    #    # first encrypt msg then commit action
+    #    new_data = data.split("|")
+    #    id, data = new_data[0], new_data[2]
+    #    #self.commit_action(id,data)
 
     def close_con(self):
         self.ClientSocket.close()
@@ -225,6 +226,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     win = comm()
     conn = connect()
+    print(f"connection is {conn}")
     gui_thread = Thread(target=win.show())
     net_thread = Thread(target=conn.receive)
 

@@ -4,8 +4,10 @@
 class address(object):
     def __init__(self):
         #TODO - change to relative path
-        self.file = r'C:\Users\User\pythonProject1\network_data.txt'
-        self.data_arr = self.sep_data()  # stores all data [serverIP, ClientIP, port]
+        #self.file = r'C:\Users\User\pythonProject1\address_to_change.txt'
+
+        #self.data_arr = self.sep_data()  # stores all data [serverIP, ClientIP, port]
+        self.data_arr = ['127.0.0.1', '0.0.0.0', 8448] #['192.168.24.10', '192.168.2.82', 9876]
         self.check_()
 
     def get_server_ip(self):
