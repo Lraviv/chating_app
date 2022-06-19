@@ -7,9 +7,8 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMainWindow, QApplication
 from PyQt5 import QtCore
 import socket
-#import client.window2
+from get_ip_addresses import address
 from client.graphics import Ui_MainWindow
-from login import Login, Sign
 from threading import Thread
 
 
@@ -25,7 +24,6 @@ class comm(QMainWindow, Ui_MainWindow):
         self.label_list = []
         self.chat_users = [] # dict of all users user is chatting with
         self.validation = False
-
 
         self.check_buttons()
 
@@ -57,12 +55,12 @@ class comm(QMainWindow, Ui_MainWindow):
 
     def send_signin(self):
         # send login credentials to check. if valid try then open the slt
-        global c
+        global conn
         try:
             creds = self.loguser_input.text()+"+"+self.logpass_input.text()
             # check if password is valid
             print("login try: ", creds)
-            resp = c.send_data("02", str(creds)) # sending data for check   #@TODO solve the bug
+            resp = conn.send_data("02", str(creds)) # sending data for check   #@TODO solve the bug
             # check if valid
             if resp == "True":
                 print("login succeeded")
@@ -82,7 +80,8 @@ class comm(QMainWindow, Ui_MainWindow):
     def send_signup(self):
         ''' add creds from client to database, if signup is successful then
         continue to main screen '''
-        global c
+        global conn
+        print(conn)
         creds = self.signuser_input.text()+"+"+self.signpass_input.text()+"+"+self.signemail_input.text()
         # check if password is valid
         print(str(creds))
@@ -95,7 +94,7 @@ class comm(QMainWindow, Ui_MainWindow):
             else:
                 print('trying')
                 info = "sign up failed"
-                success = c.send_data("03", str(creds))
+                success = conn.send_data("03", str(creds))
             print(success)
         except Exception as e:
             print("[EXCEPTION] ", e)
@@ -166,7 +165,7 @@ class comm(QMainWindow, Ui_MainWindow):
 
     def start_speech(self):
         # start recording
-        #text = client.window2.recognize()
+        #text = speech.recognize()
         #print(text)
         #self.msg_edit_box.setPlainText(text)
         #self.msg_edit_box.show()
@@ -174,9 +173,9 @@ class comm(QMainWindow, Ui_MainWindow):
 
 class connect():
     def __init__(self):
-        self.host = '127.0.0.1'
-        self.port = 8448
-        self.data = ''
+        add = address()
+        self.host = add.get_server_ip()
+        self.port = add.get_port()
 
     def send_data(self, id, data):
         # sending msg in format
@@ -202,6 +201,9 @@ class connect():
         except socket.error as e:
             print(str(e))
 
+        #while True:
+        #    response =
+
     def encrypt(self, id, data):
         # get msg in format  id|size|data before sending
         size = len(data.encode())
@@ -217,13 +219,14 @@ class connect():
     def close_con(self):
         self.ClientSocket.close()
 
+
 if __name__ == "__main__":
-    global c
+    global conn
     app = QApplication(sys.argv)
     win = comm()
-    c = connect()
+    conn = connect()
     gui_thread = Thread(target=win.show())
-    net_thread = Thread(target=c.receive)
+    net_thread = Thread(target=conn.receive)
 
     gui_thread.start()
     net_thread.start()
@@ -231,6 +234,6 @@ if __name__ == "__main__":
     net_thread.join()
     gui_thread.join()
 
-    c.close_con()
+    conn.close_con()
     sys.exit(app.exec_())
 

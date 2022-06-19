@@ -19,7 +19,7 @@ class address(object):
 
     def get_port(self):
         # return port from file
-        return self.data_arr[2]
+        return int(self.data_arr[2])
 
     def check_(self):
         # check if the data in file is valid

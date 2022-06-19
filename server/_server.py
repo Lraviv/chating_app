@@ -3,13 +3,14 @@ import os
 from _thread import *
 from server import login
 from server import signup
-
+from get_ip_addresses import address as ad
 
 class s():
     def __init__(self):
         self.ServerSocket = socket.socket()
-        host = '127.0.0.1'
-        port = 8448
+        a = ad()
+        host = a.get_client_ip()
+        port = int(a.get_port())
         ThreadCount = 0
         self.adds = {}
         self.clients = {}   # dict of client_name:client_conn
@@ -26,8 +27,6 @@ class s():
         while True:
             Client, address = self.ServerSocket.accept()
             self.add = address
-            #self.adds[self.client_num] = address[0]
-
             self.client_num+=1
             print(self.adds)
             print('Connected to: ' + address[0] + ':' + str(address[1]))
@@ -84,10 +83,14 @@ class s():
                 self.clients[data[0]] = self.clients.pop(self.add)
             print(response)
 
-        elif id == "04":    # send message
-            pass
+        elif id == "04":    # client wants to send message
+            data = data.split("+")  # target+data
+            print(f"{self.add} sending {data[1]} to {data[0]}")
+            # send data[1] to data[0]
+            #target = self.clients[data[0]]
         else:
             print("not matching")
+
 
         # return response to client
         print(response)
