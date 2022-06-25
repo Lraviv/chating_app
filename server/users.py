@@ -23,7 +23,6 @@ class Users(object):
 
         # conn.execute("Create table users")
         conn.execute(query_str)
-        print("Table created successfully")
         conn.commit()
         conn.close()
 
@@ -35,8 +34,7 @@ class Users(object):
 
     def insert_user(self, username, password, email):
         # insert new user into the database if not already exists
-        print(username)
-        print(password)
+        print("inserting new user...")
         if not self.is_exist(username, email):  # check if user already exist
             conn = sqlite3.connect('users_db.db')  # before self.file_name
             insert_query = "INSERT INTO " + self.__tablename +\
@@ -45,22 +43,20 @@ class Users(object):
             print(insert_query)
             conn.execute(insert_query)
             conn.commit()
-            conn.close()
             print("Record created successfully")
             return 1
+            conn.close()
         else:
             return -1
 
 
     def select_user_by_id(self, userId):
         conn = sqlite3.connect(self.file_name)
-        print("Opened database successfully")
         str1 = "select * from users;"
 
         """strsql = "SELECT userId, username, password  from " +  self.__tablename + " where " + self.__userId + "=" \
             + str(userId)
         """
-        print(str1)
         cursor = conn.execute(str1)
         for row in cursor:
             print("userId = ", row[0])
@@ -73,7 +69,6 @@ class Users(object):
     def delete_user_by_id(self, userID):
         # delete user by id number
         conn = sqlite3.connect(self.file_name)
-        print("Opened database successfully")
         str1 = f"DELETE FROM users WHERE userID LIKE {userID}"
         conn.execute(str1)
         conn.commit()
@@ -82,7 +77,7 @@ class Users(object):
     def update_password(self, id, new_password):
         # update user password
         conn = sqlite3.connect(self.file_name)
-        print("Opened database successfully")
+        print("updating password...")
         str1 = f"UPDATE users SET password={new_password} WHERE userID = {id}"
         conn.execute(str1)
         conn.commit()
@@ -95,16 +90,12 @@ class Users(object):
 
     def check_user_and_pass(self, username, password):
         conn = sqlite3.connect(self.file_name)
-        print("Opened database successfully")
+        print("checking if user exists...")
         str1 = "select * from users;"
-
-        print(str1)
         cursor = conn.execute(str1)
         for row in cursor:
             if row[2] == username:
                 if row[1] == password:
-                    conn.close()
-                    cursor.close()
                     return True
         conn.commit()
         cursor.close()
@@ -115,9 +106,7 @@ class Users(object):
     def is_exist(self, username, email):
         #Checks if username or email already exist in database
         conn = sqlite3.connect('users_db.db')
-        print("Opened database successfully")
         str1 = f"select * from users;"
-        print(str1)
         cursor = conn.execute(str1)
         for row in cursor:
             if row[2] == username:
@@ -129,6 +118,3 @@ class Users(object):
         conn.commit()
         conn.close()
         return False
-
-
-Users()

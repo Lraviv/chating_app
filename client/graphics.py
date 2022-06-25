@@ -621,21 +621,6 @@ class Ui_MainWindow(object):
         self.userid_label5.setStyleSheet("border: 1px solid transparent;")
         self.userid_label5.setText("")
         self.userid_label5.setObjectName("userid_label5")
-        self.my_msg_label = QtWidgets.QLabel(self.main_app)
-        self.my_msg_label.setGeometry(QtCore.QRect(390, 490, 421, 91))
-        self.my_msg_label.setStyleSheet("background-color: rgb(85, 170, 255);\n"
-"border-radius: 15px;\n"
-"font: 9pt \"Arial\";")
-        self.my_msg_label.setText("")
-        self.my_msg_label.setObjectName("my_msg_label")
-        self.others_msg_label = QtWidgets.QLabel(self.main_app)
-        self.others_msg_label.setGeometry(QtCore.QRect(70, 390, 421, 91))
-        self.others_msg_label.setStyleSheet("background-color: rgb(85, 170, 255);\n"
-"background-color: rgb(207, 207, 207);\n"
-"border-radius: 15px;\n"
-"font: 9pt \"Arial\";")
-        self.others_msg_label.setText("")
-        self.others_msg_label.setObjectName("others_msg_label")
         self.entry.addWidget(self.main_app)
         self.password_reset = QtWidgets.QWidget()
         self.password_reset.setObjectName("password_reset")

@@ -7,12 +7,11 @@ from get_ip_addresses import address as ad
 
 class s():
     def __init__(self):
-        self.ServerSocket = socket.socket()
+        self.ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         a = ad()
         host = a.get_client_ip()
         port = int(a.get_port())
         ThreadCount = 0
-        self.adds = {}
         self.clients = {}   # dict of client_name:client_conn
         self.client_num = 0
 
@@ -25,11 +24,9 @@ class s():
         self.ServerSocket.listen(10)  # atmost conncetions
 
         while True:
-            Client, address = self.ServerSocket.accept()
-            self.add = address
-            self.client_num+=1
-            print(self.adds)
-            print('Connected to: ' + address[0] + ':' + str(address[1]))
+            Client, self.address = self.ServerSocket.accept()
+            self.client_num += 1
+            print('Connected to: ' + self.address[0] + ':' + str(self.address[1]))
             start_new_thread(self.threaded_client, (Client,))
             ThreadCount += 1
             print('Thread Number: ' + str(ThreadCount))
@@ -38,29 +35,34 @@ class s():
 
     def threaded_client(self, connection):
         # we need to create a function that handles requests from the individual client by a thread
+        self.clients[self.address] = connection
         self.connection = connection
-        self.clients[self.add] = self.connection
+        self.connection.send(str.encode("WELCOME TO SERVER!"))
         while True:
             data = connection.recv(2048)  # receive data from client
             data = data.decode()
-            print("[CLIENT]: ", data)
-            res = self.decrypt(data)
-            self.data_to_send(res)
+            if data != None:
+                print("[CLIENT]: ", data)
+                res = self.decrypt(data)
+                self.data_to_send(res)
         connection.close()
 
 
     def data_to_send(self, response):
         # gets what to send to client
         # send response
-        # response = self.encrypt(response)
-        print(f"sending {response}")
+        if response:
+            response = "True"
+        elif not response:
+            response = "False"
+        print(f"sending {response} as {type(response)}")
         self.connection.send(str.encode(response))
 
     def commit_action(self, id, data):
         # commit action of id IN SERVER 
-        response = -1
+        response = "False"
         print(id)
-        if id == "00":
+        if id == "00":  # send rsa key
             pass
         elif id == "01":
             pass
@@ -70,9 +72,11 @@ class s():
             user = login.Login(data[0], data[1])
             response = user.check_in_sql()
             if response:
-                response = "True"
-                self.clients[data[0]] = self.clients.pop(self.add)
-                print(self.clients)
+                try:
+                    self.clients[data[0]] = self.clients.pop(self.address)
+                    print(self.clients)
+                except Exception as e:
+                    print(f"[EXCEPTION] cant add username to dictionary")
 
         elif id == "03":    # sign up
             data = data.split("+")
@@ -80,21 +84,20 @@ class s():
             response = user.create_a_user()
             if response:
                 response = "True"
-                self.clients[data[0]] = self.clients.pop(self.add)
+                self.clients[data[0]] = self.clients.pop(self.address)
             print(response)
 
         elif id == "04":    # client wants to send message
             data = data.split("+")  # target+data
-            print(f"{self.add} sending {data[1]} to {data[0]}")
-            # send data[1] to data[0]
-            #target = self.clients[data[0]]
+            print(f"{self.address} sending {data[1]} to {data[0]}")
+            target = self.clients[data[0]]
+            print(target)
+            target.send(str.encode(self.clients[self.connection]+"+"+data[1]))
         else:
             print("not matching")
 
 
-        # return response to client
-        print(response)
-        return response
+        return response  # return the response to client
 
     def decrypt(self, data):
         # first encrypt msg then commit action
