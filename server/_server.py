@@ -3,6 +3,7 @@ import os
 from _thread import *
 from server import login
 from server import signup
+from users import Users
 from get_ip_addresses import address as ad
 
 class s():
@@ -93,6 +94,11 @@ class s():
             target = self.clients[data[0]]
             print(target)
             target.send(str.encode(self.clients[self.connection]+"+"+data[1]))
+
+        elif id == "05":    #client wants to add user
+            user = Users()
+            response = user.is_username_exist(data)
+            print(f"user adding {data}")
         else:
             print("not matching")
 

@@ -19,10 +19,16 @@ class comm(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.count = 0
+        self.cur_user = ""  # current chat user
+        self.thisuser = ""  # name of my user
 
         self.msg_list = []  # list of all current msg in [id, msg] format
         self.label_list = []
-        self.chat_users = [] # dict of all users user is chatting with
+        self.chat_users = []  # dict of all users user is chatting with
+        self.users_label = [self.userid_button, self.userid_button_2, self.userid_button_3, self.userid_button_4
+                            , self.userid_button_5]   # all users label (on the right side)
+        self.cur_users = []  # all the users that the user is chatting with
+
         self.timer = QTimer()
 
         self.conn = connect()
@@ -44,7 +50,7 @@ class comm(QMainWindow, Ui_MainWindow):
         self.forgot_password_cmd.clicked.connect(lambda: self.change_window(self.vertification))
         self.logquit_button.clicked.connect(lambda: exit())
         # ----------in sign up page-------------
-        self.signlogin_button.clicked.connect(lambda: self.change_window(self.login_page))  # signin button
+        self.signlogin_button.clicked.connect(lambda: self.change_window(self.login_page))  # sign in button
         self.signup_button.clicked.connect(self.send_signup)  # signup button
 
         # ---------in verification _____________
@@ -57,7 +63,11 @@ class comm(QMainWindow, Ui_MainWindow):
         self.send_button.clicked.connect(self.send_msg)  # send msg button
         self.start_button.clicked.connect(self.start_speech)  # start speech button
         self.search_user_button.clicked.connect(self.add_user)
-
+        self.userid_button.clicked.connect(lambda: self.update_current(self.userid_button.text()))
+        self.userid_button_2.clicked.connect(lambda: self.update_current(self.userid_button_2.text()))
+        self.userid_button_3.clicked.connect(lambda: self.update_current(self.userid_button_3.text()))
+        self.userid_button_4.clicked.connect(lambda: self.update_current(self.userid_button_4.text()))
+        self.userid_button_5.clicked.connect(lambda: self.update_current(self.userid_button_5.text()))
 
     def send_signin(self):
         # send login credentials to check. if valid try then open the slt
@@ -121,16 +131,14 @@ class comm(QMainWindow, Ui_MainWindow):
     def send_msg(self):
         # send msg to another user
         # handle user's edit msg box
-        user_id = 0     #@todo
-        self.count += 1
-        print("send message")
-        textmsg = self.msg_edit_box.toPlainText()
-        print(textmsg)
-        data = self.thisuser+"+"+textmsg
-        self.msg_edit_box.clear()
-        print(f"id is {user_id}")
-        # display msg box
-        self.display_msg(user_id,textmsg)
+        if self.cur_user!="":
+            textmsg = self.msg_edit_box.toPlainText()
+            data = self.cur_user+"+"+textmsg
+            self.msg_edit_box.clear()
+            self.display_msg(0,textmsg) # display msg box
+            self.conn.send_data("04", data)     # sending data to current chat user
+        else:
+            print("user don't have any other users")
 
     def display_msg(self, user_id, text):
         # handles message display, 0 is user 1 is other
@@ -164,6 +172,7 @@ class comm(QMainWindow, Ui_MainWindow):
 
             style += 'border-radius: 15px;\n font: 9pt "Arial";'
             label.setGeometry(PyQt5.QtCore.QRect(x, y, 421, 91))
+            label.setWordWrap(True)
             self.label_list.append(label)
             self.timer.singleShot(1000, lambda: label.setStyleSheet(style))
             self.timer.singleShot(1000, lambda: label.setText(" " + str(msg[1])))
@@ -181,10 +190,18 @@ class comm(QMainWindow, Ui_MainWindow):
     def add_user(self):
         # add user to chats
         user = self.search_user_line.text()
+        self.cur_users.append(user)
         print(f"adding {user}")
-        QTimer.singleShot(1000, lambda: self.userid_label.setText(str(user)))
+        resp = self.conn.send_data("05", str(user))
+        if resp == "True":
+            QTimer.singleShot(1000, lambda: self.userid_button.setText(str(user)))
+            self.cur_user = user
+        else:
+            print("user doesn't exist / not online")
 
-
+    def update_current(self, username):
+        print(f"user is chatting with {username}")
+        self.cur_user = username
 # ----------------------------------------------------------------------------------------------------------------------
 class connect():
     def __init__(self):
@@ -217,13 +234,6 @@ class connect():
             print(f"connected to server as {self.ClientSocket}")
         except socket.error as e:
             print(str(e))
-        #loop = True
-        #while loop:
-        #     Response = self.ClientSocket.recv(1024)  # receive from server
-        #     rep = Response.decode('utf-8')
-        #     print("[SERVER]: ", rep)
-
-        #self.close_con()
 
     def encrypt(self, id, data):
         # get msg in format  id|size|data before sending
