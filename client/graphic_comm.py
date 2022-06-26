@@ -11,7 +11,7 @@ import socket
 from get_ip_addresses import address
 from client.graphics import Ui_MainWindow
 from threading import Thread
-
+from client import client_rsa
 
 class comm(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -216,9 +216,11 @@ class connect():
         self.port = add.get_port()
         print(f'connecting to {self.host} with port {self.port}')
         self.response = ""
+        self.public_key = ""
 
     def send_data(self, id, data):
         # sending msg in format
+        self.encoding_data(data)
         self.data = self.encrypt(id, data)  # encrypting data
         print("sending: ", self.data)
         self.ClientSocket.send(str.encode(self.data))
@@ -272,7 +274,15 @@ class connect():
                 print(f"public key is {self.public_key}")
 
         except:
-            print("can't display")
+            print("can't commit")
+
+    def generate_priv(self):
+        pass
+
+    def encoding_data(self, data):
+        msg = client_rsa.encode(data, tup(self.public_key))
+        print("encoded msg" + str(msg))
+        return msg
 
     def close_con(self):
         self.ClientSocket.close()
