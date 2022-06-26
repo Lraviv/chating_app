@@ -32,9 +32,8 @@ class comm(QMainWindow, Ui_MainWindow):
         self.timer = QTimer()
 
         self.conn = connect()
-        net_thread = Thread(target=self.conn.receive_loop())
+        net_thread = Thread(target=self.conn.receive_loop)
         net_thread.start()
-        net_thread.join()
 
         self.check_buttons()
 
@@ -76,7 +75,10 @@ class comm(QMainWindow, Ui_MainWindow):
             self.thisuser = self.loguser_input.text()
             # check if password is valid
             print("login try: ", creds)
-            resp = self.conn.send_data("02", str(creds))  # sending data for check
+            self.conn.send_data("02", str(creds))  # sending data for check
+            time.sleep(3)
+            resp = self.conn.get_answer()
+            print("response is "+resp)
             # check if valid
             if resp == "True":
                 print("login succeeded")
@@ -85,7 +87,7 @@ class comm(QMainWindow, Ui_MainWindow):
                 # print error msg and go to check buttons again
                 print("login failed")
                 info = "login failed, try again..."
-                self.timer.singleShot(3 * 1000, lambda: self.warn_label_log.setText(info))
+                self.timer.singleShot(1000, lambda: self.warn_label_log.setText(info))
 
         except Exception as e:
             print("[ERROR] ", e)
@@ -105,7 +107,8 @@ class comm(QMainWindow, Ui_MainWindow):
             else:
                 print('trying to sign up...')
                 info = "sign up failed"
-                success = self.conn.send_data("03", str(creds))  # send that sign up failed
+                self.conn.send_data("03", str(creds))  # send that sign up failed
+                success = self.conn.get_answer()
             print(success)
         except Exception as e:
             print("[EXCEPTION] ", e)
@@ -117,12 +120,10 @@ class comm(QMainWindow, Ui_MainWindow):
             print("sign up failed")
             #QTimer.singleShot(3 * 1000, lambda: self.warn_label_sign.setText(info))
 
-
     def check_vert(self):
         # check if the code that the user clicked is valid
         user_code = self.vertcode_input.text()
         # here send code to server @TODO
-
 
     def change_window(self, win):
         # change current displaying window
@@ -148,7 +149,7 @@ class comm(QMainWindow, Ui_MainWindow):
             if len(msg[1]) == 0:
                 self.msg_list.remove(msg)
 
-        #check if there are too much messages for screen
+        # check if there are too much messages for screen
         if len(self.msg_list) > 5:
             print(f"there are {len(self.msg_list)} messages")
             del self.msg_list[-1]
@@ -190,11 +191,12 @@ class comm(QMainWindow, Ui_MainWindow):
     def add_user(self):
         # add user to chats
         user = self.search_user_line.text()
-        self.cur_users.append(user)
         print(f"adding {user}")
-        resp = self.conn.send_data("05", str(user))
+        self.conn.send_data("05", str(user))
+        resp = self.conn.get_answer()
         if resp == "True":
             QTimer.singleShot(1000, lambda: self.userid_button.setText(str(user)))
+            self.cur_users.append(user)
             self.cur_user = user
         else:
             print("user doesn't exist / not online")
@@ -202,13 +204,17 @@ class comm(QMainWindow, Ui_MainWindow):
     def update_current(self, username):
         print(f"user is chatting with {username}")
         self.cur_user = username
+
 # ----------------------------------------------------------------------------------------------------------------------
+
+
 class connect():
     def __init__(self):
         add = address()
         self.host = add.get_server_ip()
         self.port = add.get_port()
         print(f'connecting to {self.host} with port {self.port}')
+        self.response = ""
 
     def send_data(self, id, data):
         # sending msg in format
@@ -216,13 +222,15 @@ class connect():
         print("sending: ", self.data)
         self.ClientSocket.send(str.encode(self.data))
 
+    def get_answer(self):
+        return self.response
         # receiving answer from server
-        Response = self.ClientSocket.recv(1024)  # receive from server
-        rep = Response.decode('utf-8')
-        print("[SERVER] ", rep)
+        #Response = self.ClientSocket.recv(1024)  # receive from server
+        #rep = Response.decode('utf-8')
+        #print("[SERVER] ", rep)
         # decrypt
         #self.decrypt(rep)
-        return rep
+        #return rep
 
     def receive_loop(self):
         global win
@@ -235,11 +243,32 @@ class connect():
         except socket.error as e:
             print(str(e))
 
+        while True:
+            response = self.ClientSocket.recv(1024)
+            response = response.decode('utf-8')
+            print("[SERVER] "+response)
+            if response != None:
+                if response == "True" or response == "False":
+                    print("in true/false")
+                    self.response = response
+                else:
+                    self.commit_action(response)
+
+
     def encrypt(self, id, data):
         # get msg in format  id|size|data before sending
         size = len(data.encode())
         new_data = (id + "|" + str(size) + "|" + str(data))
         return new_data
+
+    def commit_action(self, rep):
+        # sort which action to do
+        print("in commit")
+        try:
+            data = rep.split("+")   # -qs+origin+msg_data
+            win.display_msg(1, data[2])
+        except:
+            print("can't display")
 
     def close_con(self):
         self.ClientSocket.close()
@@ -250,7 +279,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     win = comm()
     win.show()
-
 
     sys.exit(app.exec_())
 

@@ -119,13 +119,13 @@ class Users(object):
         conn.close()
         return False
 
-    def is_username_exist(self, username):
+    def is_username_exist(self,myuser, username):
         # find is username is in database
         conn = sqlite3.connect('users_db.db')
         str1 = f"select * from users;"
         cursor = conn.execute(str1)
         for row in cursor:
-            if row[2] == username:
+            if row[2] == username and row[2] != myuser:
                 return True
 
         conn.commit()

@@ -38,7 +38,6 @@ class s():
         # we need to create a function that handles requests from the individual client by a thread
         self.clients[self.address] = connection
         self.connection = connection
-        self.connection.send(str.encode("WELCOME TO SERVER!"))
         while True:
             data = connection.recv(2048)  # receive data from client
             data = data.decode()
@@ -50,7 +49,6 @@ class s():
 
 
     def data_to_send(self, response):
-        # gets what to send to client
         # send response
         if response:
             response = "True"
@@ -89,19 +87,26 @@ class s():
             print(response)
 
         elif id == "04":    # client wants to send message
-            data = data.split("+")  # target+data
-            print(f"{self.address} sending {data[1]} to {data[0]}")
-            target = self.clients[data[0]]
-            print(target)
-            target.send(str.encode(self.clients[self.connection]+"+"+data[1]))
+            try:
+                data = data.split("+")  # target+data
+                print(f"{self.address} sending {data[1]} to {data[0]}")
+                target = self.clients.get(data[0], )
+                print(target)
+                username = self.get_username(self.connection)
+                target.send(str.encode("-qs+"+username+"+"+data[1]))
+            except:
+                print("no such user")
 
         elif id == "05":    #client wants to add user
             user = Users()
-            response = user.is_username_exist(data)
-            print(f"user adding {data}")
+            try:
+                username = self.get_username(self.connection)
+                response = user.is_username_exist(username,data)
+                print(f"{username} adding {username} is {response}")
+            except:
+                print("[EXCEPTION] can't find user")
         else:
             print("not matching")
-
 
         return response  # return the response to client
 
@@ -117,5 +122,13 @@ class s():
         size = len(data.encode())
         new_data = (id + "|" + str(size) + "|" + str(data))
         return new_data
+
+    def get_username(self, connection):
+        # return requested connection username
+        keys = list(self.clients.keys())
+        values = list(self.clients.values())
+        username = keys[values.index(connection)]
+        return username
+
 
 s()
