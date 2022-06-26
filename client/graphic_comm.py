@@ -82,6 +82,7 @@ class comm(QMainWindow, Ui_MainWindow):
             # check if valid
             if resp == "True":
                 print("login succeeded")
+                self.timer.singleShot(1000, lambda: self.name_label.setText(f"hey {self.thisuser}!"))
                 self.change_window(self.main_app)
             else:
                 # print error msg and go to check buttons again
@@ -253,6 +254,9 @@ class connect():
                     self.response = response
                 else:
                     self.commit_action(response)
+            else:
+                print("response is None")
+
 
 
     def encrypt(self, id, data):
@@ -265,8 +269,8 @@ class connect():
         # sort which action to do
         print("in commit")
         try:
-            data = rep.split("+")   # -qs+origin+msg_data
-            win.display_msg(1, data[2])
+            data = rep.split("+")   # origin+msg_data
+            win.display_msg(1, data[1])
         except:
             print("can't display")
 

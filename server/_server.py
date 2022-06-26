@@ -14,6 +14,7 @@ class s():
         port = int(a.get_port())
         ThreadCount = 0
         self.clients = {}   # dict of client_name:client_conn
+        self.users_online = []  # all users that are currently online
         self.client_num = 0
 
         try:
@@ -39,12 +40,23 @@ class s():
         self.clients[self.address] = connection
         self.connection = connection
         while True:
-            data = connection.recv(2048)  # receive data from client
-            data = data.decode()
-            if data != None:
-                print("[CLIENT]: ", data)
-                res = self.decrypt(data)
-                self.data_to_send(res)
+            try:
+                data = connection.recv(2048)  # receive data from client
+                data = data.decode()
+                if data != None:
+                    print("[CLIENT]: ", data)
+                    res = self.decrypt(data)
+                    self.data_to_send(res)
+            except:
+                user = self.get_username(self.connection)
+                try:
+                    self.users_online.remove(user)
+                    del self.clients[user]
+                    print(f"{user} closed connection")
+                    break
+                except:
+                    print(f"{user} doesn't exist in list")
+                    break
         connection.close()
 
 
@@ -73,6 +85,7 @@ class s():
             if response:
                 try:
                     self.clients[data[0]] = self.clients.pop(self.address)
+                    self.users_online.append(data[0])
                     print(self.clients)
                 except Exception as e:
                     print(f"[EXCEPTION] cant add username to dictionary")
@@ -89,11 +102,14 @@ class s():
         elif id == "04":    # client wants to send message
             try:
                 data = data.split("+")  # target+data
-                print(f"{self.address} sending {data[1]} to {data[0]}")
-                target = self.clients.get(data[0], )
-                print(target)
-                username = self.get_username(self.connection)
-                target.send(str.encode("-qs+"+username+"+"+data[1]))
+                if data[0] in self.users_online:
+                    print(f"{self.address} sending {data[1]} to {data[0]}")
+                    target = self.clients.get(data[0], )
+                    print(target)
+                    username = self.get_username(self.connection)
+                    target.send(str.encode(username+"+"+data[1]))
+                else:
+                    print(f"{data[0]} not online")
             except:
                 print("no such user")
 
@@ -101,9 +117,13 @@ class s():
             user = Users()
             try:
                 username = self.get_username(self.connection)
-                response = user.is_username_exist(username,data)
-                print(f"{username} adding {username} is {response}")
+                if data in self.users_online:
+                    response = user.is_username_exist(username, data)
+                    print(f"{username} adding {username} is {response}")
+                else:
+                    response = "False"
             except:
+                response = 'False'
                 print("[EXCEPTION] can't find user")
         else:
             print("not matching")
