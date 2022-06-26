@@ -108,6 +108,7 @@ class comm(QMainWindow, Ui_MainWindow):
                 print('trying to sign up...')
                 info = "sign up failed"
                 self.conn.send_data("03", str(creds))  # send that sign up failed
+                time.sleep(3)
                 success = self.conn.get_answer()
             print(success)
         except Exception as e:
@@ -118,7 +119,7 @@ class comm(QMainWindow, Ui_MainWindow):
             self.change_window(self.login_page)
         else:
             print("sign up failed")
-            #QTimer.singleShot(3 * 1000, lambda: self.warn_label_sign.setText(info))
+            QTimer.singleShot(1000, lambda: self.warn_label_sign.setText(info))
 
     def check_vert(self):
         # check if the code that the user clicked is valid
@@ -264,7 +265,7 @@ class connect():
         try:
             all_data = rep.split("|")
             if all_data[0] == "00": # receive and display message
-                data = all_data.split("+")   # origin+msg_data
+                data = all_data[1].split("+")   # origin+msg_data
                 win.display_msg(1, data[1])
             if all_data[0] == "01": # get key
                 self.public_key = all_data[1]
@@ -277,7 +278,6 @@ class connect():
         pass
 
     def encoding_data(self, data):
-
         try:
             msg = client_rsa.encode(data, self.public_key)
             print("encoded msg" + str(msg))

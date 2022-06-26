@@ -1,3 +1,4 @@
+import hashlib
 import socket
 import os
 from _thread import *
@@ -6,7 +7,7 @@ from server import signup
 from users import Users
 from server import RSA
 from get_ip_addresses import address as ad
-import hashlib
+
 
 class s():
     def __init__(self):
@@ -62,7 +63,6 @@ class s():
                     print(f"{user} closed connection")
                     break
                 except:
-                    print(f"{user} doesn't exist in list")
                     break
         connection.close()
 
@@ -95,7 +95,7 @@ class s():
                     self.clients[data[0]] = self.clients.pop(self.address)
                     print(self.clients)
                 except Exception as e:
-                    print(f"[EXCEPTION] cant add username to dictionary")
+                    pass
 
         elif id == "03":    # sign up
             data = data.split("+")
@@ -160,8 +160,14 @@ class s():
 
     def hash_password(self, password):
         # hash the given data
-        hashed = str(hash(password))
-        print("hashed password is " + hashed )
-        return hashed
+        try:
+            #hashed = str(hashlib.sha256(password.encode()).hexdigest())
+            hashed = str(hash(password))
+            print("hashed password is " + hashed)
+            return hashed
+        except Exception as e:
+            print(f"[HASH ERROR] {e}")
+            return password
+
 
 s()
