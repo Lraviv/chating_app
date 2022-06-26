@@ -13,7 +13,8 @@ class s():
         a = ad()
         host = a.get_client_ip()
         port = int(a.get_port())
-        self.pub_key, = RSA.generate_keys()
+        (self.pub_key,priv) = RSA.generate_keys()
+        print("public key is "+str(self.pub_key))
         ThreadCount = 0
         self.clients = {}   # dict of client_name:client_conn
         self.users_online = []  # all users that are currently online
@@ -85,12 +86,13 @@ class s():
             user = login.Login(data[0], data[1])
             response = user.check_in_sql()
             if response:
+                # sending public key to new user
+                self.connection.send(str.encode("01|" + str(self.pub_key)))
+                print(f"sending {data[0]} the public key {str(self.pub_key)}")
+                self.users_online.append(data[0])
                 try:
                     self.clients[data[0]] = self.clients.pop(self.address)
-                    self.users_online.append(data[0])
                     print(self.clients)
-                    # sending public key to new user
-                    self.ServerSocket.send(str.encode("01|"+self.pub_key))
                 except Exception as e:
                     print(f"[EXCEPTION] cant add username to dictionary")
 
@@ -101,6 +103,8 @@ class s():
             if response:
                 response = "True"
                 self.clients[data[0]] = self.clients.pop(self.address)
+                self.connection.send(str.encode("01|" + self.pub_key))
+                print(f"sending {data[0]} the public key {self.pub_key}")
             print(response)
 
         elif id == "04":    # client wants to send message
@@ -111,7 +115,7 @@ class s():
                     target = self.clients.get(data[0], )
                     print(target)
                     username = self.get_username(self.connection)
-                    target.send(str.encode("00"+"|"+username+"+"+data[1]))
+                    target.send(str.encode("00|"+username+"+"+data[1]))
                 else:
                     print(f"{data[0]} not online")
 

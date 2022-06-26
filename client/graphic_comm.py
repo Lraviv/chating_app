@@ -224,14 +224,8 @@ class connect():
         self.ClientSocket.send(str.encode(self.data))
 
     def get_answer(self):
-        return self.response
         # receiving answer from server
-        #Response = self.ClientSocket.recv(1024)  # receive from server
-        #rep = Response.decode('utf-8')
-        #print("[SERVER] ", rep)
-        # decrypt
-        #self.decrypt(rep)
-        #return rep
+        return self.response
 
     def receive_loop(self):
         global win

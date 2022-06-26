@@ -4,7 +4,6 @@ import os
 class address(object):
     def __init__(self):
         #TODO - change to relative path
-        print(os.getcwd())
         #self.file = r'/pythonProject1/network_data.txt'
 
         #self.data_arr = self.sep_data()  # stores all data [serverIP, ClientIP, port]
