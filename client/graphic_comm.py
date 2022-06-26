@@ -280,7 +280,7 @@ class connect():
         pass
 
     def encoding_data(self, data):
-        msg = client_rsa.encode(data, tup(self.public_key))
+        msg = client_rsa.encode(data, tuple(self.public_key))
         print("encoded msg" + str(msg))
         return msg
 
