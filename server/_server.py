@@ -4,6 +4,7 @@ from _thread import *
 from server import login
 from server import signup
 from users import Users
+from server import RSA
 from get_ip_addresses import address as ad
 
 class s():
@@ -12,6 +13,7 @@ class s():
         a = ad()
         host = a.get_client_ip()
         port = int(a.get_port())
+        self.pub_key, = RSA.generate_keys()
         ThreadCount = 0
         self.clients = {}   # dict of client_name:client_conn
         self.users_online = []  # all users that are currently online
@@ -87,6 +89,8 @@ class s():
                     self.clients[data[0]] = self.clients.pop(self.address)
                     self.users_online.append(data[0])
                     print(self.clients)
+                    # sending public key to new user
+                    self.ServerSocket.send(str.encode("01|"+self.pub_key))
                 except Exception as e:
                     print(f"[EXCEPTION] cant add username to dictionary")
 
@@ -107,9 +111,10 @@ class s():
                     target = self.clients.get(data[0], )
                     print(target)
                     username = self.get_username(self.connection)
-                    target.send(str.encode(username+"+"+data[1]))
+                    target.send(str.encode("00"+"|"+username+"+"+data[1]))
                 else:
                     print(f"{data[0]} not online")
+
             except:
                 print("no such user")
 
@@ -149,6 +154,7 @@ class s():
         values = list(self.clients.values())
         username = keys[values.index(connection)]
         return username
+
 
 
 s()

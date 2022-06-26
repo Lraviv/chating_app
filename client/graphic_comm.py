@@ -269,8 +269,14 @@ class connect():
         # sort which action to do
         print("in commit")
         try:
-            data = rep.split("+")   # origin+msg_data
-            win.display_msg(1, data[1])
+            all_data = rep.split("|")
+            if all_data[0] == "00": # receive and display message
+                data = all_data.split("+")   # origin+msg_data
+                win.display_msg(1, data[1])
+            if all_data[0] == "01": # get key
+                self.public_key = all_data[1]
+                print(f"public key is {self.public_key}")
+
         except:
             print("can't display")
 

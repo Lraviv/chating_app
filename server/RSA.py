@@ -84,9 +84,5 @@ def generate_keys():
     d = generate_d(e, phi_n)
     return (n, e), (n, d)
 
-pub_key, priv_key = generate_keys()
-msg = input("msg: ")
-enmsg = encode(msg, pub_key)
-print("encrypted msg: "+ str(enmsg))
-demsg = decipher(enmsg, priv_key)
-print("decrypted msg: ", str(demsg))
+
+# get keys: (pubkey, privkey)-> encode(msg, pubkey) -> decipher (msg, privkey)
