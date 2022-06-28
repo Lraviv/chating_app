@@ -161,8 +161,8 @@ class s():
     def hash_password(self, password):
         # hash the given data
         try:
-            #hashed = str(hashlib.sha256(password.encode()).hexdigest())
-            hashed = str(hash(password))
+            hashed = str(hashlib.sha256(password.encode()).hexdigest())
+            #hashed = str(hash(password))
             print("hashed password is " + hashed)
             return hashed
         except Exception as e:

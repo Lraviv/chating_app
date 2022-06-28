@@ -3,6 +3,7 @@ this handles the graphics functions
 '''
 import sys
 import time
+from threading import Thread
 
 import PyQt5
 from PyQt5.QtCore import QTimer
@@ -10,8 +11,8 @@ from PyQt5.QtWidgets import QMainWindow, QApplication
 import socket
 from get_ip_addresses import address
 from client.graphics import Ui_MainWindow
-from threading import Thread
 from client import client_rsa
+from client import speech
 
 class comm(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -30,6 +31,7 @@ class comm(QMainWindow, Ui_MainWindow):
         self.cur_users = []  # all the users that the user is chatting with
 
         self.timer = QTimer()
+        self.speech = speech.Speech()
 
         self.conn = connect()
         net_thread = Thread(target=self.conn.receive_loop)
@@ -146,7 +148,7 @@ class comm(QMainWindow, Ui_MainWindow):
         # handles message display, 0 is user 1 is other
         this_msg = [user_id, text]
         self.msg_list.insert(0, this_msg)   # insert message to start of list
-        for msg in self.msg_list:
+        for msg in self.msg_list:   # check if the message is empty
             if len(msg[1]) == 0:
                 self.msg_list.remove(msg)
 
@@ -157,7 +159,7 @@ class comm(QMainWindow, Ui_MainWindow):
             print(f"popped - now theres {len(self.msg_list)}")
         else:
             print(f"there are {len(self.msg_list)} messages")
-
+        # clear all labels that are already on screen
         for label in self.label_list:
             label.clear()
             self.label_list.remove(label)
@@ -180,13 +182,14 @@ class comm(QMainWindow, Ui_MainWindow):
             self.timer.singleShot(1000, lambda: label.setText(" " + str(msg[1])))
             self.timer.singleShot(1000, lambda: label.show())
 
-
     def start_speech(self):
-        # start recording
-        #text = speech.recognize()
-        #print(text)
-        #self.msg_edit_box.setPlainText(text)
-        #self.msg_edit_box.show()
+        # start recording and convert the audio to text
+        text = self.speech.recognize()
+        self.msg_edit_box.setPlainText(text)
+        self.msg_edit_box.show()
+
+    def msg_to_sound(self):
+        # if user clicks on msg play this msg
         pass
 
     def add_user(self):
@@ -244,15 +247,13 @@ class connect():
             response = self.ClientSocket.recv(1024)
             response = response.decode('utf-8')
             print("[SERVER] "+response)
-            if response != None:
+            if response != None or response != '':
                 if response == "True" or response == "False":
                     self.response = response
                 else:
                     self.commit_action(response)
             else:
                 print("response is None")
-
-
 
     def encrypt(self, id, data):
         # get msg in format  id|size|data before sending
