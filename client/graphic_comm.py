@@ -22,7 +22,9 @@ class comm(QMainWindow, Ui_MainWindow):
         self.count = 0
         self.cur_user = ""  # current chat user
         self.thisuser = ""  # name of my user
+        label1, label2, label3, label4, label5 = '', '', '', '', ''
 
+        self.labels = [label1, label2, label3, label4, label5]  # list of labels
         self.msg_list = []  # list of all current msg in [id, msg] format
         self.label_list = []
         self.chat_users = []  # dict of all users user is chatting with
@@ -60,7 +62,7 @@ class comm(QMainWindow, Ui_MainWindow):
 
         # ---------in reset-----------------------
 
-        #---------in main-------------------------
+        # ---------in main-------------------------
         self.send_button.clicked.connect(self.send_msg)  # send msg button
         self.start_button.clicked.connect(self.start_speech)  # start speech button
         self.search_user_button.clicked.connect(self.add_user)
@@ -139,7 +141,7 @@ class comm(QMainWindow, Ui_MainWindow):
             textmsg = self.msg_edit_box.toPlainText()
             data = self.cur_user+"+"+textmsg
             self.msg_edit_box.clear()
-            self.display_msg(0,textmsg) # display msg box
+            self.display_msg(0,textmsg)  # display msg box
             self.conn.send_data("04", data)     # sending data to current chat user
         else:
             print("user don't have any other users")
@@ -159,14 +161,19 @@ class comm(QMainWindow, Ui_MainWindow):
             print(f"popped - now theres {len(self.msg_list)}")
         else:
             print(f"there are {len(self.msg_list)} messages")
+        print(f"this is all labels: {self.label_list}")
         # clear all labels that are already on screen
         for label in self.label_list:
+            label.hide()
             label.clear()
-            self.label_list.remove(label)
+        self.label_list.clear()
+
+        print(f"this is {self.label_list}")
+        count = 0
         # display all labels onscreen
         for msg in self.msg_list:
             print(f"displaying {msg[1]} from user {msg[0]}")
-            label = PyQt5.QtWidgets.QLabel(self.main_app)
+            self.labels[count] = PyQt5.QtWidgets.QLabel(self.main_app)
             if msg[0] == 0:   # this is user's msg
                 style = "background-color: rgb(85, 170, 255);\n"
                 x, y = 380, (490+(len(self.msg_list)-1)*-100)
@@ -175,12 +182,20 @@ class comm(QMainWindow, Ui_MainWindow):
                 x, y = 70, (490+(len(self.msg_list)-1)*-100)
 
             style += 'border-radius: 15px;\n font: 9pt "Arial";'
-            label.setGeometry(PyQt5.QtCore.QRect(x, y, 421, 91))
-            label.setWordWrap(True)
-            self.label_list.append(label)
-            self.timer.singleShot(1000, lambda: label.setStyleSheet(style))
-            self.timer.singleShot(1000, lambda: label.setText(" " + str(msg[1])))
-            self.timer.singleShot(1000, lambda: label.show())
+            self.labels[count].setGeometry(PyQt5.QtCore.QRect(x, y, 421, 91))
+            self.labels[count].setWordWrap(True)
+
+            self.labels[count].setStyleSheet(style)
+            self.labels[count].setText(" " + str(msg[1]))
+            self.labels[count].show()
+            self.label_list.append(self.labels[count])
+            print("displayed")
+
+            count+=1
+        print(self.labels)
+            #self.timer.singleShot(1000, lambda: label.setStyleSheet(style))
+            #self.timer.singleShot(1000, lambda: label.setText(" " + str(msg[1])))
+            #self.timer.singleShot(1000, lambda: label.show())
 
     def start_speech(self):
         # start recording and convert the audio to text
