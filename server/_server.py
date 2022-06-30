@@ -66,7 +66,6 @@ class s():
                     break
         connection.close()
 
-
     def data_to_send(self, response):
         # send response
         if response:
@@ -152,7 +151,7 @@ class s():
         return new_data
 
     def get_username(self, connection):
-        # return requested connection username
+        # return requested connection's username
         keys = list(self.clients.keys())
         values = list(self.clients.values())
         username = keys[values.index(connection)]

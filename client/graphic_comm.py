@@ -81,7 +81,7 @@ class comm(QMainWindow, Ui_MainWindow):
 
 
     def send_signin(self):
-        # send login credentials to check. if valid try then open the slt
+        # send login credentials to check. if valid then open the slt
         try:
             creds = self.loguser_input.text()+"+"+self.logpass_input.text()
             self.thisuser = self.loguser_input.text()
@@ -103,7 +103,6 @@ class comm(QMainWindow, Ui_MainWindow):
 
         except Exception as e:
             print("[ERROR] ", e)
-
 
     def send_signup(self):
         ''' add creds from client to database, if signup is successful then
@@ -170,6 +169,7 @@ class comm(QMainWindow, Ui_MainWindow):
         count = 0
         for msg in self.msg_list:
             print(f"displaying {msg[1]} from user {msg[0]}")
+            print("current label is: ", self.labels[count])
             #self.labels[count] = PyQt5.QtWidgets.QLabel(self.main_app)
             if msg[0] == 0:   # this is user's msg
                 style = "background-color: rgb(85, 170, 255);\n"

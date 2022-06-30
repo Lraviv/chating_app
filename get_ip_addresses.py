@@ -12,7 +12,6 @@ class address(object):
 
     def get_server_ip(self):
         # return the server ip from the file
-        print("serverIP: ",  self.data_arr[0])
         return self.data_arr[0]
 
     def get_client_ip(self):
