@@ -37,7 +37,7 @@ class Speech():
     def speak(self, audio):
         # receives text {audio} and makes an audio play (mp3)
         mixer.init()
-        tts = gTTS(text=audio, lang='iw')  # text to speech(voice)
+        tts = gTTS(text=audio, lang='en')  # text to speech(voice)
         audio_file = "audiospeak_" + datetime.now().strftime("%Y_%m_%d-%I-%M-%S_%p") + '.mp3'
         tts.save(audio_file)  # save as mp3
         mixer.music.load(audio_file)

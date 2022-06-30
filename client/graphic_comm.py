@@ -1,6 +1,7 @@
 '''
 this handles the graphics functions
 '''
+import functools
 import sys
 import time
 from threading import Thread
@@ -22,7 +23,9 @@ class comm(QMainWindow, Ui_MainWindow):
         self.count = 0
         self.cur_user = ""  # current chat user
         self.thisuser = ""  # name of my user
-        label1, label2, label3, label4, label5 = '', '', '', '', ''
+        label1, label2, label3, label4, label5 = PyQt5.QtWidgets.QLabel(self.main_app),PyQt5.QtWidgets.QLabel(self.main_app),\
+                                                 PyQt5.QtWidgets.QLabel(self.main_app), PyQt5.QtWidgets.QLabel(self.main_app),\
+                                                PyQt5.QtWidgets.QLabel(self.main_app)
 
         self.labels = [label1, label2, label3, label4, label5]  # list of labels
         self.msg_list = []  # list of all current msg in [id, msg] format
@@ -71,6 +74,11 @@ class comm(QMainWindow, Ui_MainWindow):
         self.userid_button_3.clicked.connect(lambda: self.update_current(self.userid_button_3.text()))
         self.userid_button_4.clicked.connect(lambda: self.update_current(self.userid_button_4.text()))
         self.userid_button_5.clicked.connect(lambda: self.update_current(self.userid_button_5.text()))
+        # messages
+
+        for label in self.labels:
+            label.mousePressEvent = lambda: self.msg_to_sound(label.text())
+
 
     def send_signin(self):
         # send login credentials to check. if valid try then open the slt
@@ -135,10 +143,9 @@ class comm(QMainWindow, Ui_MainWindow):
         self.entry.setCurrentWidget(win)
 
     def send_msg(self):
-        # send msg to another user
-        # handle user's edit msg box
+        # send msg to another user, and handle it being displayed on screen
         if self.cur_user!="":
-            textmsg = self.msg_edit_box.toPlainText()
+            textmsg = self.msg_edit_box.toPlainText()   # get the message from the text box
             data = self.cur_user+"+"+textmsg
             self.msg_edit_box.clear()
             self.display_msg(0,textmsg)  # display msg box
@@ -147,7 +154,7 @@ class comm(QMainWindow, Ui_MainWindow):
             print("user don't have any other users")
 
     def display_msg(self, user_id, text):
-        # handles message display, 0 is user 1 is other
+        # handles message display, 0 is user 1 is the other user
         this_msg = [user_id, text]
         self.msg_list.insert(0, this_msg)   # insert message to start of list
         for msg in self.msg_list:   # check if the message is empty
@@ -156,46 +163,33 @@ class comm(QMainWindow, Ui_MainWindow):
 
         # check if there are too much messages for screen
         if len(self.msg_list) > 5:
-            print(f"there are {len(self.msg_list)} messages")
             del self.msg_list[-1]
-            print(f"popped - now theres {len(self.msg_list)}")
-        else:
-            print(f"there are {len(self.msg_list)} messages")
-        print(f"this is all labels: {self.label_list}")
-        # clear all labels that are already on screen
-        for label in self.label_list:
-            label.hide()
-            label.clear()
-        self.label_list.clear()
+        print(f"there are {len(self.msg_list)} messages")
 
-        print(f"this is {self.label_list}")
-        count = 0
         # display all labels onscreen
+        count = 0
         for msg in self.msg_list:
             print(f"displaying {msg[1]} from user {msg[0]}")
-            self.labels[count] = PyQt5.QtWidgets.QLabel(self.main_app)
+            #self.labels[count] = PyQt5.QtWidgets.QLabel(self.main_app)
             if msg[0] == 0:   # this is user's msg
                 style = "background-color: rgb(85, 170, 255);\n"
                 x, y = 380, (490+(len(self.msg_list)-1)*-100)
             else:   # if it's the other user
                 style = "background-color: rgb(85, 170, 255);\n"
                 x, y = 70, (490+(len(self.msg_list)-1)*-100)
-
             style += 'border-radius: 15px;\n font: 9pt "Arial";'
+
             self.labels[count].setGeometry(PyQt5.QtCore.QRect(x, y, 421, 91))
             self.labels[count].setWordWrap(True)
 
             self.labels[count].setStyleSheet(style)
             self.labels[count].setText(" " + str(msg[1]))
             self.labels[count].show()
-            self.label_list.append(self.labels[count])
-            print("displayed")
-
-            count+=1
+            #self.timer.singleShot(1000, lambda: self.labels[count].setStyleSheet(style))
+            #self.timer.singleShot(1000, lambda: self.labels[count].setText(" " + str(msg[1])))
+            #self.timer.singleShot(1000, lambda: self.labels[count].show())
+            count += 1
         print(self.labels)
-            #self.timer.singleShot(1000, lambda: label.setStyleSheet(style))
-            #self.timer.singleShot(1000, lambda: label.setText(" " + str(msg[1])))
-            #self.timer.singleShot(1000, lambda: label.show())
 
     def start_speech(self):
         # start recording and convert the audio to text
@@ -203,9 +197,15 @@ class comm(QMainWindow, Ui_MainWindow):
         self.msg_edit_box.setPlainText(text)
         self.msg_edit_box.show()
 
-    def msg_to_sound(self):
+    def msg_to_sound(self, label):
         # if user clicks on msg play this msg
-        pass
+        print("?")
+        try:
+            print("label is being played")
+            #if label.text() != '':
+            #    self.speech.speak(label.text())
+        except Exception as e:
+            print(f"[SOUND ERROR] {e}")
 
     def add_user(self):
         # add user to chats
