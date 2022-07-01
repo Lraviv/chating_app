@@ -56,8 +56,8 @@ class s():
                     res = self.decrypt(data)
                     self.data_to_send(res)
             except:
-                user = self.get_username(self.connection)
                 try:
+                    user = self.get_username(self.connection)
                     self.users_online.remove(user)
                     del self.clients[user]
                     print(f"{user} closed connection")
@@ -116,14 +116,16 @@ class s():
                     target.send(str.encode("00|"+username+"+"+data[1]))
                 else:
                     print(f"{data[0]} not online")
-
             except:
                 print("no such user")
 
-        elif id == "05":    #client wants to add user
+        elif id == "05":    # client wants to add user
+            print("here")
             user = Users()
+            print("in adding")
             try:
                 username = self.get_username(self.connection)
+                print("username is", username)
                 if data in self.users_online:
                     response = user.is_username_exist(username, data)
                     print(f"{username} adding {username} is {response}")
@@ -132,6 +134,16 @@ class s():
             except:
                 response = 'False'
                 print("[EXCEPTION] can't find user")
+
+        elif id == "06":    # change logo
+            user = Users()
+            try:
+                print(f"logo data is {data}")
+                username = self.get_username(self.connection)
+                user.update_logo(data)
+            except:
+                print("[SQL ERROR] can't change logo")
+
         else:
             print("not matching")
 

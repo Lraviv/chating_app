@@ -4,12 +4,13 @@ import sqlite3
 manages the users database for login
 '''
 class Users(object):
-    def __init__(self, tablename="users", userId="userId", password="password", username="username", email="email"):
+    def __init__(self, tablename="users", userId="userId", password="password", username="username", email="email", logo="1"):
         self.__tablename = tablename
         self.__userId = userId
         self.__password = password
         self.__username = username
         self.__email = email
+        self.__logo = logo
 
         self.file_name = 'users_db.db'
         conn = sqlite3.connect('users_db.db')
@@ -19,7 +20,8 @@ class Users(object):
                     " INTEGER PRIMARY KEY AUTOINCREMENT ,"
         query_str += " " + self.__password + " TEXT    NOT NULL ,"
         query_str += " " + self.__username + " TEXT    NOT NULL ,"
-        query_str += " " + self.__email + " TEXT    NOT NULL );"
+        query_str += " " + self.__email + " TEXT    NOT NULL  );"
+        #query_str += " " + self.__logo + " TEXT    DEFAULT 1 );"
 
         # conn.execute("Create table users")
         conn.execute(query_str)
@@ -49,22 +51,20 @@ class Users(object):
         else:
             return -1
 
+#    def update_logo(self, username, logo_num):
+#        # update the logo
+#        conn = sqlite3.connect(self.file_name)
+#        print("updating logo...")
+#        str1 = f"UPDATE users SET logo={logo_num} WHERE username={username}"
+#
+#        if self.is_exist(username):
+#            print("username exist")
+#            conn.execute(str1)
+#        else:
+#            return "False"
+#        conn.close()
+#        return "True"
 
-    def select_user_by_id(self, userId):
-        conn = sqlite3.connect(self.file_name)
-        str1 = "select * from users;"
-
-        """strsql = "SELECT userId, username, password  from " +  self.__tablename + " where " + self.__userId + "=" \
-            + str(userId)
-        """
-        cursor = conn.execute(str1)
-        for row in cursor:
-            print("userId = ", row[0])
-            print("username = ", row[1])
-            print("password = ", row[2])
-
-        print("Operation done successfully")
-        conn.close()
 
     def delete_user_by_id(self, userID):
         # delete user by id number
@@ -89,6 +89,7 @@ class Users(object):
         str1 = ("SELECT rowid FROM components WHERE name = ?", username)
 
     def check_user_and_pass(self, username, password):
+        # check if user and password as the same as those who've been given
         conn = sqlite3.connect(self.file_name)
         print("checking if user exists...")
         str1 = "select * from users;"
@@ -102,9 +103,9 @@ class Users(object):
         conn.close()
         return False
 
-
     def is_exist(self, username, email):
-        #Checks if username or email already exist in database
+        # Checks if username or email already exist in database
+        print("checking if username exist")
         conn = sqlite3.connect('users_db.db')
         str1 = f"select * from users;"
         cursor = conn.execute(str1)

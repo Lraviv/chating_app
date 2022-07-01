@@ -15,6 +15,7 @@ from client.graphics import Ui_MainWindow
 from client import client_rsa
 from client import speech
 
+
 class comm(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
@@ -23,11 +24,20 @@ class comm(QMainWindow, Ui_MainWindow):
         self.count = 0
         self.cur_user = ""  # current chat user
         self.thisuser = ""  # name of my user
-        label1, label2, label3, label4, label5 = PyQt5.QtWidgets.QLabel(self.main_app),PyQt5.QtWidgets.QLabel(self.main_app),\
-                                                 PyQt5.QtWidgets.QLabel(self.main_app), PyQt5.QtWidgets.QLabel(self.main_app),\
-                                                PyQt5.QtWidgets.QLabel(self.main_app)
+        label1, label2, label3, label4, label5 = PyQt5.QtWidgets.QLabel(self.main_app),\
+                                                 PyQt5.QtWidgets.QLabel(self.main_app),\
+                                                 PyQt5.QtWidgets.QLabel(self.main_app), \
+                                                 PyQt5.QtWidgets.QLabel(self.main_app),\
+                                                 PyQt5.QtWidgets.QLabel(self.main_app)
 
+        self.b1, self.b2, self.b3, self.b4, self.b5 = PyQt5.QtWidgets.QPushButton(self.main_app),  \
+                        PyQt5.QtWidgets.QPushButton(self.main_app), PyQt5.QtWidgets.QPushButton(self.main_app),\
+                        PyQt5.QtWidgets.QPushButton(self.main_app), PyQt5.QtWidgets.QPushButton(self.main_app)
+
+        self.buttonmsg = {}
         self.labels = [label1, label2, label3, label4, label5]  # list of labels
+        self.buttons = [self.b1, self.b2, self.b3, self.b4, self.b5]
+        for item in self.buttons: item.hide()
         self.msg_list = []  # list of all current msg in [id, msg] format
         self.label_list = []
         self.chat_users = []  # dict of all users user is chatting with
@@ -75,9 +85,11 @@ class comm(QMainWindow, Ui_MainWindow):
         self.userid_button_4.clicked.connect(lambda: self.update_current(self.userid_button_4.text()))
         self.userid_button_5.clicked.connect(lambda: self.update_current(self.userid_button_5.text()))
         # messages
-
-        for label in self.labels:
-            label.mousePressEvent = lambda: self.msg_to_sound(label.text())
+        self.b1.clicked.connect(lambda: self.msg_to_sound(self.b1))
+        self.b2.clicked.connect(lambda: self.msg_to_sound(self.b2))
+        self.b3.clicked.connect(lambda: self.msg_to_sound(self.b3))
+        self.b4.clicked.connect(lambda: self.msg_to_sound(self.b4))
+        self.b5.clicked.connect(lambda: self.msg_to_sound(self.b5))
 
 
     def send_signin(self):
@@ -87,9 +99,10 @@ class comm(QMainWindow, Ui_MainWindow):
             self.thisuser = self.loguser_input.text()
             # check if password is valid
             print("login try: ", creds)
-            self.conn.send_data("02", str(creds))  # sending data for check
-            time.sleep(3)
-            resp = self.conn.get_answer()
+            #self.conn.send_data("02", str(creds))  # sending data for check
+            #time.sleep(2)
+            #resp = self.conn.get_answer()
+            resp = "True"
             # check if valid
             if resp == "True":
                 print("login succeeded")
@@ -169,15 +182,18 @@ class comm(QMainWindow, Ui_MainWindow):
         count = 0
         for msg in self.msg_list:
             print(f"displaying {msg[1]} from user {msg[0]}")
-            print("current label is: ", self.labels[count])
-            #self.labels[count] = PyQt5.QtWidgets.QLabel(self.main_app)
             if msg[0] == 0:   # this is user's msg
                 style = "background-color: rgb(85, 170, 255);\n"
-                x, y = 380, (490+(len(self.msg_list)-1)*-100)
+                x, y = 380, (490+(count)*-100)
             else:   # if it's the other user
-                style = "background-color: rgb(85, 170, 255);\n"
-                x, y = 70, (490+(len(self.msg_list)-1)*-100)
+                style = "background-color: rgb(217, 217, 217);\n"
+                x, y = 70, (490+(count)*-100)
             style += 'border-radius: 15px;\n font: 9pt "Arial";'
+
+            self.buttons[count].setGeometry(PyQt5.QtCore.QRect(x-55, y+25, 51, 31))
+            print("button is", self.buttons[count])
+            self.buttonmsg[self.buttons[count]] = msg[1]
+            self.buttons[count].setText("▶")
 
             self.labels[count].setGeometry(PyQt5.QtCore.QRect(x, y, 421, 91))
             self.labels[count].setWordWrap(True)
@@ -185,11 +201,8 @@ class comm(QMainWindow, Ui_MainWindow):
             self.labels[count].setStyleSheet(style)
             self.labels[count].setText(" " + str(msg[1]))
             self.labels[count].show()
-            #self.timer.singleShot(1000, lambda: self.labels[count].setStyleSheet(style))
-            #self.timer.singleShot(1000, lambda: self.labels[count].setText(" " + str(msg[1])))
-            #self.timer.singleShot(1000, lambda: self.labels[count].show())
+            self.buttons[count].show()
             count += 1
-        print(self.labels)
 
     def start_speech(self):
         # start recording and convert the audio to text
@@ -197,13 +210,15 @@ class comm(QMainWindow, Ui_MainWindow):
         self.msg_edit_box.setPlainText(text)
         self.msg_edit_box.show()
 
-    def msg_to_sound(self, label):
+    def msg_to_sound(self, button):
         # if user clicks on msg play this msg
-        print("?")
+        print(button)
+        label = self.buttonmsg.get(button)
+        print(f"label is {label} ")
         try:
-            print("label is being played")
-            #if label.text() != '':
-            #    self.speech.speak(label.text())
+            if label != '':
+                print("label is being played")
+                self.speech.speak(label)
         except Exception as e:
             print(f"[SOUND ERROR] {e}")
 
@@ -212,11 +227,23 @@ class comm(QMainWindow, Ui_MainWindow):
         user = self.search_user_line.text()
         print(f"adding {user}")
         self.conn.send_data("05", str(user))
+        time.sleep(1)
         resp = self.conn.get_answer()
         if resp == "True":
-            QTimer.singleShot(1000, lambda: self.userid_button.setText(str(user)))
-            self.cur_users.append(user)
-            self.cur_user = user
+            for label in self.users_label:
+                if label.text() == '':
+                    label.setText(str(user))
+
+                    self.cur_users.append(user)
+                    self.cur_user = user
+                    return
+
+            if self.count == 5:
+                self.count = 0
+
+            self.users_label[self.count].setText('')
+            self.add_user()
+            self.count += 1
         else:
             print("user doesn't exist / not online")
 
@@ -280,7 +307,7 @@ class connect():
         # sort which action to do
         try:
             all_data = rep.split("|")
-            if all_data[0] == "00": # receive and display message
+            if all_data[0] == "00":  # receive and display message
                 data = all_data[1].split("+")   # origin+msg_data
                 win.display_msg(1, data[1])
             if all_data[0] == "01": # get key
