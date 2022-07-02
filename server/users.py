@@ -4,7 +4,7 @@ import sqlite3
 manages the users database for login
 '''
 class Users(object):
-    def __init__(self, tablename="users", userId="userId", password="password", username="username", email="email", logo="1"):
+    def __init__(self, tablename="users", userId="userId", password="password", username="username", email="email", logo="logo"):
         self.__tablename = tablename
         self.__userId = userId
         self.__password = password
@@ -20,8 +20,8 @@ class Users(object):
                     " INTEGER PRIMARY KEY AUTOINCREMENT ,"
         query_str += " " + self.__password + " TEXT    NOT NULL ,"
         query_str += " " + self.__username + " TEXT    NOT NULL ,"
-        query_str += " " + self.__email + " TEXT    NOT NULL  );"
-        #query_str += " " + self.__logo + " TEXT    DEFAULT 1 );"
+        query_str += " " + self.__email + " TEXT    NOT NULL ,"
+        query_str += " " + self.__logo + " TEXT   DEFAULT '1');"
 
         # conn.execute("Create table users")
         conn.execute(query_str)
@@ -40,8 +40,9 @@ class Users(object):
         if not self.is_exist(username, email):  # check if user already exist
             conn = sqlite3.connect('users_db.db')  # before self.file_name
             insert_query = "INSERT INTO " + self.__tablename +\
-                           " (" + self.__username + "," + self.__password + "," + self.__email + ") VALUES " \
-                           "(" + "'" + username + "'" + "," + "'" + password + "'" + "," + "'" + email + "'" + ");"
+                           " (" + self.__username + "," + self.__password + "," + self.__email + "," +  self.__logo+ ") VALUES " \
+                           "(" + "'" + username + "'" + "," + "'" + password + "'" + "," + "'" + email + "'" +\
+                           "," + "'1'"+");"
             print(insert_query)
             conn.execute(insert_query)
             conn.commit()
