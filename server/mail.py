@@ -8,8 +8,8 @@ class Mail():
         self.sender = "chating.speech@gmail.com"
         self.receiver = '+972' + receiver
         self.code = self.generate_code()
-        account_sid = 'AC4dfc5189ee0883099938bc84e6939e7e'
-        auth_token = 'd9739f6fcb90d64ada9f1eaeeccc31e6'
+        account_sid = sid
+        auth_token = token
         client = Client(account_sid, auth_token)
 
         msg = client.messages.create(
