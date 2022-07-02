@@ -6,10 +6,10 @@ import random
 class Mail():
     def __init__(self, receiver):
         self.sender = "chating.speech@gmail.com"
-        self.receiver = receiver
+        self.receiver = '+972' + receiver
         self.code = self.generate_code()
-        account_sid = os.environ['TWILIO_ACCOUNT_SID']
-        auth_token = os.environ['TWILIO_AUTH_TOKEN']
+        account_sid = 'AC4dfc5189ee0883099938bc84e6939e7e'
+        auth_token = 'd9739f6fcb90d64ada9f1eaeeccc31e6'
         client = Client(account_sid, auth_token)
 
         msg = client.messages.create(
@@ -24,5 +24,8 @@ class Mail():
         self.code = str(random.randint(1000, 9999))
         return self.code
 
+    def get_code(self):
+        return self.code
 
-m = Mail("+972523671576")
+
+m = Mail("0523671576")

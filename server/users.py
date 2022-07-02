@@ -40,7 +40,7 @@ class Users(object):
         if not self.is_exist(username, email):  # check if user already exist
             conn = sqlite3.connect('users_db.db')  # before self.file_name
             insert_query = "INSERT INTO " + self.__tablename +\
-                           " (" + self.__username + "," + self.__password + "," + self.__email + "," +  self.__logo+ ") VALUES " \
+                           " (" + self.__username + "," + self.__password + "," + self.__email + "," + self.__logo+ ") VALUES " \
                            "(" + "'" + username + "'" + "," + "'" + password + "'" + "," + "'" + email + "'" +\
                            "," + "'1'"+");"
             print(insert_query)
@@ -51,6 +51,22 @@ class Users(object):
             conn.close()
         else:
             return -1
+
+    def get_phone(self, username):
+        # get phone from username
+        conn = sqlite3.connect('users_db.db')  # before self.file_name
+        print(f"getting phone of {username}")
+        str1 = f"select * from users;"
+        cursor = conn.execute(str1)
+        for row in cursor:
+            if row[2] == username:
+                conn.commit()
+                conn.close()
+                return row[3]
+        cursor.close()
+        conn.close()
+        return "False"
+
 
 #    def update_logo(self, username, logo_num):
 #        # update the logo

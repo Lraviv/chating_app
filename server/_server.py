@@ -7,7 +7,7 @@ from server import signup
 from users import Users
 from server import RSA
 from get_ip_addresses import address as ad
-
+from mail import Mail
 
 class s():
     def __init__(self):
@@ -80,8 +80,20 @@ class s():
         response = "False"
         if id == "00":  # send rsa key
             pass
-        elif id == "01":
-            pass
+        elif id == "01":    # check code for verification
+            if data == self.sms.get_code():
+                # sign up process
+                data = self.prev_data
+                data[1] = self.hash_password(data[1])  # hash the password
+                user = signup.sign(data[0], data[1], data[2])
+                response = user.create_a_user()
+                if response:
+                    print("sign up succeeded")
+                    self.clients[data[0]] = self.clients.pop(self.address)
+            else:
+                print("code does not match")
+                response = "False"
+
         elif id == "02":  # login
             # check if data received in database
             data = data.split("+")
@@ -97,13 +109,14 @@ class s():
                     pass
 
         elif id == "03":    # sign up
-            data = data.split("+")
-            data[1] = self.hash_password(data[1])   # hash the password
-            user = signup.sign(data[0], data[1], data[2])
-            response = user.create_a_user()
-            if response:
-                self.clients[data[0]] = self.clients.pop(self.address)
-            print(response)
+            self.prev_data = data.split("+")
+            user = Users()
+            if not user.is_exist(data[0], data[2]):
+                phone = data[2]
+                self.sms = Mail(phone)  # send code
+                response = "True"
+            else:
+                response = "False"
 
         elif id == "04":    # client wants to send message
             try:

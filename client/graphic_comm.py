@@ -75,10 +75,14 @@ class comm(QMainWindow, Ui_MainWindow):
 
         # ---------in reset-----------------------
 
+        # ---------in verification-----------------
+        self.vertify_button.clicked.connect(self.check_vert)
         # ---------in main-------------------------
         self.send_button.clicked.connect(self.send_msg)  # send msg button
         self.start_button.clicked.connect(self.start_speech)  # start speech button
         self.search_user_button.clicked.connect(self.add_user)
+        self.pushButton.clicked.connect(self.upload_img)    # upload button
+
         self.userid_button.clicked.connect(lambda: self.update_current(self.userid_button.text()))
         self.userid_button_2.clicked.connect(lambda: self.update_current(self.userid_button_2.text()))
         self.userid_button_3.clicked.connect(lambda: self.update_current(self.userid_button_3.text()))
@@ -139,8 +143,8 @@ class comm(QMainWindow, Ui_MainWindow):
             print("[EXCEPTION] ", e)
 
         if success == "True":
-            print("user had been added to database")
-            self.change_window(self.login_page)
+            print("user proceeding to validation")
+            self.change_window(self.vertification)
         else:
             print("sign up failed")
             QTimer.singleShot(1000, lambda: self.warn_label_sign.setText(info))
@@ -148,7 +152,15 @@ class comm(QMainWindow, Ui_MainWindow):
     def check_vert(self):
         # check if the code that the user clicked is valid
         user_code = self.vertcode_input.text()
-        # here send code to server @TODO
+        self.conn.send_data("01", user_code)
+        time.sleep(2)
+        resp = self.conn.get_answer()
+        if resp == 'True':
+            print("user successfully passed verification")
+            self.change_window(self.main_app)
+        else:
+            print("user failed verification")
+            self.warn_label_vert.setText("code does not match, try again")
 
     def change_window(self, win):
         # change current displaying window
@@ -190,10 +202,11 @@ class comm(QMainWindow, Ui_MainWindow):
                 x, y = 70, (490+(count)*-100)
             style += 'border-radius: 15px;\n font: 9pt "Arial";'
 
-            self.buttons[count].setGeometry(PyQt5.QtCore.QRect(x-55, y+25, 51, 31))
+            self.buttons[count].setGeometry(PyQt5.QtCore.QRect(x-55, y+35, 51, 31))
             print("button is", self.buttons[count])
             self.buttonmsg[self.buttons[count]] = msg[1]
             self.buttons[count].setText("▶")
+            self.buttons[count].setStyleSheet('font: 10pt "Arial"')
 
             self.labels[count].setGeometry(PyQt5.QtCore.QRect(x, y, 421, 91))
             self.labels[count].setWordWrap(True)
@@ -217,7 +230,6 @@ class comm(QMainWindow, Ui_MainWindow):
         print(f"label is {label} ")
         try:
             if label != '':
-                print("label is being played")
                 self.speech.speak(label)
         except Exception as e:
             print(f"[SOUND ERROR] {e}")
@@ -249,8 +261,23 @@ class comm(QMainWindow, Ui_MainWindow):
 
     def update_current(self, username):
         print(f"user is chatting with {username}")
+        for label in self.labels: label.hide()  # hide all labels
+        for button in self.buttons: button.hide()  # hide all buttons
         self.cur_user = username
 
+    def upload_img(self):
+        # handles img uploading
+        print("uploading")
+        # create option to open file
+        #name = PyQt5.QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
+        options = PyQt5.QtWidgets.QFileDialog.Options()
+        options |= PyQt5.QtWidgets.QFileDialog.DontUseNativeDialog
+        fileName, _ = PyQt5.QtWidgets.QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                  "PNG File (*.png)", options=options)
+
+        if fileName:
+            print(fileName)
+            self.file = fileName
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -313,6 +340,8 @@ class connect():
             if all_data[0] == "01": # get key
                 self.public_key = all_data[1]
                 print(f"public key is {self.public_key}")
+            if data[0] == "02":     # receive image
+                pass
 
         except:
             print("can't commit")
