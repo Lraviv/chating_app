@@ -184,6 +184,21 @@ class s():
             else:
                 response = "False"
 
+        elif id == "09":    # user need verification
+            data = data.split("+")  # origin+code
+            self.phone, self.password = data[0], data[1]
+            self.sms = Mail(self.phone)
+            return "True"
+        elif id == "10":    # check user and update pass
+            # data is code
+            if data == self.sms.get_code():
+                user = Users
+                self.password = self.hash_password(self.password)
+                user.update_password(self.phone, self.password) # update
+                return "True"
+            else:
+                return "False"
+
         else:
             print("not matching")
 

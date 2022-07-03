@@ -91,11 +91,11 @@ class Users(object):
         conn.commit()
         conn.close()
 
-    def update_password(self, id, new_password):
+    def update_password(self, phone, new_password):
         # update user password
         conn = sqlite3.connect(self.file_name)
         print("updating password...")
-        str1 = f"UPDATE users SET password={new_password} WHERE userID = {id}"
+        str1 = f"UPDATE users SET password={new_password} WHERE email = {phone}"
         conn.execute(str1)
         conn.commit()
         conn.close()

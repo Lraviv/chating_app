@@ -67,7 +67,7 @@ class comm(QMainWindow, Ui_MainWindow):
         # ----------in login page-----------
         self.login_button.clicked.connect(self.send_signin)  # login button
         self.logsign_button.clicked.connect(lambda: self.change_window(self.signup_page))  # signup button
-        self.forgot_password_cmd.clicked.connect(lambda: self.change_window(self.vertification))
+        self.forgot_password_cmd.clicked.connect(lambda: self.change_window(self.password_reset))
         self.logquit_button.clicked.connect(lambda: exit())
         # ----------in sign up page-------------
         self.signlogin_button.clicked.connect(lambda: self.change_window(self.login_page))  # sign in button
@@ -78,9 +78,8 @@ class comm(QMainWindow, Ui_MainWindow):
         self.return_cmd.clicked.connect(lambda: self.change_window(self.login_page))
 
         # ---------in reset-----------------------
-
-        # ---------in verification-----------------
-        self.vertify_button.clicked.connect(self.check_vert)
+        self.resetpass_button.clicked.connect(lambda: self.forgot_password)
+        self.resetpass_button_2.clicked.connect(lambda: self.change_window(self.login_page))
         # ---------in main-------------------------
         self.send_button.clicked.connect(self.send_msg)  # send msg button
         self.start_button.clicked.connect(self.start_speech)  # start speech button
@@ -289,6 +288,24 @@ class comm(QMainWindow, Ui_MainWindow):
                 img_str = file.read(2048)
             file.close()
             self.conn.send_data("07", "א")
+
+    def forgot_password(self):
+        #  handle click on ''
+        self.change_window(self.password_reset)
+        if self.pass_input2.find("+") <=0 and len(self.pass_input2) < 8:
+            creds = self.pass_input + "+" + self.pass_input2
+            self.conn.send_data("09", creds)    # request to be sent a code
+            self.change_window(self.vertification)
+            self.conn.send_data("10", self.vertcode_input)
+            time.sleep(2)
+            if self.conn.get_answer() == 'True':
+                print("password updated successfully")
+                self.change_window(self.login_page)
+            else:
+                print("couldn't update password")
+        else:
+            print("password is invalid")
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
