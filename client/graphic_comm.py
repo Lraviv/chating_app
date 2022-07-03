@@ -1,10 +1,14 @@
 '''
 this handles the graphics functions
 '''
+import base64
 import functools
+import os
+import pickle
 import sys
 import time
 from threading import Thread
+from PIL import Image
 
 import PyQt5
 from PyQt5.QtCore import QTimer
@@ -102,14 +106,11 @@ class comm(QMainWindow, Ui_MainWindow):
             creds = self.loguser_input.text()+"+"+self.logpass_input.text()
             self.thisuser = self.loguser_input.text()
             # check if password is valid
-            print("login try: ", creds)
-            #self.conn.send_data("02", str(creds))  # sending data for check
-            #time.sleep(2)
-            #resp = self.conn.get_answer()
-            resp = "True"
+            self.conn.send_data("02", str(creds))  # sending data for check
+            time.sleep(2)
+            resp = self.conn.get_answer()
             # check if valid
             if resp == "True":
-                print("login succeeded")
                 self.timer.singleShot(1000, lambda: self.name_label.setText(f"hey {self.thisuser}!"))
                 self.change_window(self.main_app)
             else:
@@ -157,7 +158,7 @@ class comm(QMainWindow, Ui_MainWindow):
         resp = self.conn.get_answer()
         if resp == 'True':
             print("user successfully passed verification")
-            self.change_window(self.main_app)
+            self.change_window(self.login)
         else:
             print("user failed verification")
             self.warn_label_vert.setText("code does not match, try again")
@@ -203,7 +204,6 @@ class comm(QMainWindow, Ui_MainWindow):
             style += 'border-radius: 15px;\n font: 9pt "Arial";'
 
             self.buttons[count].setGeometry(PyQt5.QtCore.QRect(x-55, y+35, 51, 31))
-            print("button is", self.buttons[count])
             self.buttonmsg[self.buttons[count]] = msg[1]
             self.buttons[count].setText("▶")
             self.buttons[count].setStyleSheet('font: 10pt "Arial"')
@@ -243,7 +243,7 @@ class comm(QMainWindow, Ui_MainWindow):
         resp = self.conn.get_answer()
         if resp == "True":
             for label in self.users_label:
-                if label.text() == '':
+                if label.text() == '' and label.text() not in self.cur_users:
                     label.setText(str(user))
 
                     self.cur_users.append(user)
@@ -267,17 +267,30 @@ class comm(QMainWindow, Ui_MainWindow):
 
     def upload_img(self):
         # handles img uploading
-        print("uploading")
+        if self.cur_user == '':
+            print("user didn't added users yet")
+            return
         # create option to open file
-        #name = PyQt5.QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
         options = PyQt5.QtWidgets.QFileDialog.Options()
         options |= PyQt5.QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = PyQt5.QtWidgets.QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
                                                   "PNG File (*.png)", options=options)
-
         if fileName:
             print(fileName)
             self.file = fileName
+            data = self.cur_user
+            self.conn.send_data("08",data)
+
+            file = open(self.file, "rb")
+            img_str = file.read(2048)
+
+            while img_str:
+                self.conn.send_data("07",str(img_str))
+                img_str = file.read(2048)
+            file.close()
+            self.conn.send_data("07", "א")
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -286,6 +299,8 @@ class connect():
         add = address()
         self.host = add.get_server_ip()
         self.port = add.get_port()
+        self.buffer_size = 1024
+        self.image_mode = False
         print(f'connecting to {self.host} with port {self.port}')
         self.response = ""
         self.public_key = ""
@@ -311,18 +326,35 @@ class connect():
             print(f"connected to server as {self.ClientSocket}")
         except socket.error as e:
             print(str(e))
-
+        # receiving loop from server:
         while True:
-            response = self.ClientSocket.recv(1024)
-            response = response.decode('utf-8')
-            print("[SERVER] "+response)
-            if response != None or response != '':
-                if response == "True" or response == "False":
-                    self.response = response
+            if not self.image_mode:
+                response = self.ClientSocket.recv(1024)
+                response = response.decode('utf-8')
+                print("[SERVER] "+response)
+                if response != None or response != '':
+                    if response == "True" or response == "False":
+                        self.response = response
+                    else:
+                        self.commit_action(response)
                 else:
-                    self.commit_action(response)
+                    print("response is None")
             else:
-                print("response is None")
+                print("starting to get image")
+                img = open("image.png", 'wb')
+                recv_data = self.ClientSocket.recv(2048)
+                while recv_data:
+                    img.write(recv_data)
+                    recv_data = self.ClientSocket.recv(2048)
+                img.close()
+                print("here")
+                if recv_data == 'א':
+                    self.image_mode = False
+                win.display_msg(1, "image.png")
+                print("image mode done")
+
+
+
 
     def encrypt(self, id, data):
         # get msg in format  id|size|data before sending
@@ -332,19 +364,28 @@ class connect():
 
     def commit_action(self, rep):
         # sort which action to do
-        try:
-            all_data = rep.split("|")
-            if all_data[0] == "00":  # receive and display message
-                data = all_data[1].split("+")   # origin+msg_data
-                win.display_msg(1, data[1])
-            if all_data[0] == "01": # get key
-                self.public_key = all_data[1]
-                print(f"public key is {self.public_key}")
-            if data[0] == "02":     # receive image
-                pass
+        all_data = rep.split("|")
+        if all_data[0] == "00":  # receive and display message
+            data = all_data[1].split("+")   # origin+msg_data
+            win.display_msg(1, data[1])
 
-        except:
-            print("can't commit")
+        elif all_data[0] == "01":  # get key
+            self.public_key = all_data[1]
+            print(f"public key is {self.public_key}")
+
+        elif all_data[0] == "02":     # receive image
+            data = all_data[1].split("+")   # origin + image
+            print(f"image is {data[1]}")
+            win.display_msg(1, "image")
+            self.buffer_size = 1024
+
+        elif all_data[0] == "03":     # get image size
+            self.image_mode = True
+            self.origin = all_data[1]
+            print(f"image incoming from {all_data[1]}")
+
+        else:
+            print("not in commit")
 
     def generate_priv(self):
         pass

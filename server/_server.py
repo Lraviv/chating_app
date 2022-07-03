@@ -15,6 +15,7 @@ class s():
         a = ad()
         host = a.get_client_ip()
         port = int(a.get_port())
+        self.buffer_size = 1024
         (self.pub_key,priv) = RSA.generate_keys()
         print("public key is "+str(self.pub_key))
         ThreadCount = 0
@@ -49,18 +50,20 @@ class s():
         print(f"sending the public key {str(self.pub_key)}")
         while True:
             try:
-                data = connection.recv(2048)  # receive data from client
+                data = connection.recv(self.buffer_size)  # receive data from client
                 data = data.decode()
                 if data != None:
                     print("[CLIENT]: ", data)
                     res = self.decrypt(data)
-                    self.data_to_send(res)
+                    if res != -1:
+                        self.data_to_send(res)
             except:
                 try:
                     user = self.get_username(self.connection)
                     self.users_online.remove(user)
                     del self.clients[user]
                     print(f"{user} closed connection")
+                    self.users_online.remove(user)
                     break
                 except:
                     break
@@ -68,9 +71,9 @@ class s():
 
     def data_to_send(self, response):
         # send response
-        if response:
+        if response == True:
             response = "True"
-        elif not response:
+        elif response == False:
             response = "False"
         print(f"[SERVER] {response} as {type(response)}")
         self.connection.send(str.encode(response))
@@ -88,6 +91,8 @@ class s():
                 user = signup.sign(data[0], data[1], data[2])
                 response = user.create_a_user()
                 if response:
+                    self.users_online.append(data[0])
+                    response = "True"
                     print("sign up succeeded")
                     self.clients[data[0]] = self.clients.pop(self.address)
             else:
@@ -111,11 +116,14 @@ class s():
         elif id == "03":    # sign up
             self.prev_data = data.split("+")
             user = Users()
-            if not user.is_exist(data[0], data[2]):
-                phone = data[2]
+            if not user.is_exist(self.prev_data[0], self.prev_data[2]):
+                print("user doesnt exist")
+                phone = self.prev_data[2]
+                print(phone)
                 self.sms = Mail(phone)  # send code
                 response = "True"
             else:
+                print("user already exist")
                 response = "False"
 
         elif id == "04":    # client wants to send message
@@ -124,16 +132,15 @@ class s():
                 if data[0] in self.users_online:
                     print(f"{self.address} sending {data[1]} to {data[0]}")
                     target = self.clients.get(data[0], )
-                    print(target)
                     username = self.get_username(self.connection)
                     target.send(str.encode("00|"+username+"+"+data[1]))
                 else:
                     print(f"{data[0]} not online")
+                    response = "False"
             except:
                 print("no such user")
 
         elif id == "05":    # client wants to add user
-            print("here")
             user = Users()
             print("in adding")
             try:
@@ -143,6 +150,7 @@ class s():
                     response = user.is_username_exist(username, data)
                     print(f"{username} adding {username} is {response}")
                 else:
+                    print("can't add user")
                     response = "False"
             except:
                 response = 'False'
@@ -153,9 +161,28 @@ class s():
             try:
                 print(f"logo data is {data}")
                 username = self.get_username(self.connection)
-                user.update_logo(data)
+                #user.update_logo(data)
             except:
                 print("[SQL ERROR] can't change logo")
+
+        elif id == "07":    # client wants to send image
+            try:
+                # data is image bytes
+                self.target.send(data) # send image in bytes
+                return -1
+            except:
+                print("no such user")
+
+        elif id == "08":    # get origin of photo
+            self.to = data
+            self.origin = self.get_username(self.connection)
+            self.target = self.clients.get(self.to, )
+            if self.origin in self.users_online:
+                print(f"{self.origin} wants to send img to {self.to}")
+                self.target.send(str.encode("03|" +self.origin))  # send image size
+                response = 'True'
+            else:
+                response = "False"
 
         else:
             print("not matching")
